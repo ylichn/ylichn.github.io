@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>岗位虾管理系统</title>
+<style>
+/* ===== HIUI Reset & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5;color:#1F2733;background:#F5F7FA;}
+a{color:#4284F5;text-decoration:none;cursor:pointer;}
+a:hover{color:#237FFA;}
+input,select,button,textarea{font-family:inherit;font-size:14px;outline:none;}
+table{border-collapse:collapse;width:100%;}
+
+/* ===== Variables ===== */
+:root{
+  --primary:#4284F5;--primary-hover:#237FFA;
+  --bg-page:#F5F7FA;--bg-card:#FFFFFF;
+  --text-main:#1F2733;--text-sub:#5F6B7A;--text-disabled:#929AA6;
+  --border:#C9CDD4;--border-light:#E7E7E8;
+  --table-header:#F2F4F7;--table-stripe:#FAFBFC;
+  --green:#34C759;--red:#E02020;--orange:#FA8C16;
+}
+
+/* ===== Header ===== */
+.header{height:48px;background:#fff;display:flex;align-items:center;padding:0 24px;border-bottom:1px solid var(--border-light);position:sticky;top:0;z-index:100;}
+.header-logo{font-size:16px;font-weight:600;color:var(--primary);margin-right:32px;display:flex;align-items:center;gap:8px;}
+.header-logo svg{width:24px;height:24px;}
+.header-tabs{display:flex;gap:0;height:100%;}
+.header-tab{padding:0 20px;height:48px;line-height:48px;color:var(--text-sub);cursor:pointer;position:relative;font-size:14px;border:none;background:none;}
+.header-tab:hover{color:var(--primary);}
+.header-tab.active{color:var(--primary);font-weight:500;}
+.header-tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--primary);}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.header-avatar{width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;}
+
+/* ===== Breadcrumb ===== */
+.breadcrumb{padding:12px 24px;font-size:13px;color:var(--text-sub);}
+.breadcrumb span{cursor:pointer;}
+.breadcrumb span:hover{color:var(--primary);}
+.breadcrumb .sep{margin:0 6px;color:var(--border);}
+.breadcrumb .current{color:var(--text-main);font-weight:500;cursor:default;}
+
+/* ===== Content ===== */
+.content{padding:0 24px 24px;}
+.card{background:#fff;border:1px solid var(--border-light);padding:20px;margin-bottom:16px;}
+
+/* ===== Filter Area ===== */
+.filter-area{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;}
+.filter-item{display:flex;flex-direction:column;gap:4px;}
+.filter-item label{font-size:12px;color:var(--text-sub);}
+.filter-item input,.filter-item select,.custom-select-trigger{
+  height:32px;border:1px solid var(--border);padding:0 8px;font-size:13px;color:var(--text-main);
+  background:#fff;min-width:160px;border-radius:2px;transition:border-color .2s;
+}
+.filter-item input:focus,.filter-item select:focus,.custom-select-trigger.focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(66,132,245,.15);}
+.filter-item input::placeholder{color:var(--text-disabled);}
+.filter-actions{display:flex;gap:8px;align-items:flex-end;margin-left:auto;}
+
+/* ===== Buttons ===== */
+.btn{height:32px;padding:0 16px;border:none;cursor:pointer;font-size:13px;font-weight:500;border-radius:2px;display:inline-flex;align-items:center;gap:4px;transition:all .15s;white-space:nowrap;}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary-hover);}
+.btn-default{background:#fff;color:var(--text-main);border:1px solid var(--border);}
+.btn-default:hover{border-color:var(--primary);color:var(--primary);}
+.btn-text{background:none;border:none;color:var(--primary);padding:0 4px;height:auto;font-weight:400;}
+.btn-text:hover{color:var(--primary-hover);}
+.btn-danger-text{background:none;border:none;color:var(--red);padding:0 4px;height:auto;font-weight:400;}
+.btn[disabled]{opacity:.5;cursor:not-allowed;pointer-events:none;}
+
+/* ===== Table ===== */
+.table-wrap{overflow-x:auto;margin-top:16px;}
+table th{background:var(--table-header);font-weight:500;font-size:13px;color:var(--text-sub);text-align:left;padding:0 12px;height:40px;border-bottom:1px solid var(--border-light);white-space:nowrap;}
+table td{padding:8px 12px;border-bottom:1px solid var(--border-light);font-size:13px;color:var(--text-main);vertical-align:top;min-height:48px;}
+table tbody tr:nth-child(even){background:var(--table-stripe);}
+table tbody tr:hover{background:#EDF1F7;}
+.cell-multi{white-space:pre-line;line-height:1.6;}
+.op-cell{white-space:nowrap;display:flex;gap:12px;align-items:center;}
+
+/* ===== Status Tag ===== */
+.tag{display:inline-block;padding:1px 8px;font-size:12px;border-radius:2px;font-weight:500;}
+.tag-green{background:#34C759;color:#fff;}
+.tag-gray{background:#929AA6;color:#fff;}
+
+/* ===== Pagination ===== */
+.pagination{display:flex;align-items:center;justify-content:space-between;margin-top:16px;font-size:13px;color:var(--text-sub);}
+.page-btns{display:flex;gap:4px;}
+.page-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border-light);background:#fff;cursor:pointer;font-size:13px;border-radius:2px;}
+.page-btn:hover{border-color:var(--primary);color:var(--primary);}
+.page-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.page-btn[disabled]{opacity:.4;cursor:not-allowed;pointer-events:none;}
+
+/* ===== Modal ===== */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;width:420px;max-width:90vw;box-shadow:0 4px 16px rgba(0,0,0,.15);}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border-light);font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:space-between;}
+.modal-close{cursor:pointer;color:var(--text-sub);font-size:18px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{color:var(--text-main);}
+.modal-body{padding:20px;font-size:14px;line-height:1.6;}
+.modal-body .warning{color:var(--red);font-size:13px;margin-top:8px;}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border-light);display:flex;justify-content:flex-end;gap:8px;}
+
+/* ===== Toast ===== */
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#1F2733;color:#fff;padding:8px 24px;font-size:14px;border-radius:2px;z-index:2000;display:none;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.toast.show{display:block;animation:toastIn .3s ease;}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+
+/* ===== Form Page ===== */
+.form-section{margin-bottom:20px;}
+.form-section-title{font-size:14px;font-weight:600;color:var(--text-main);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;}
+.form-row{display:flex;gap:24px;margin-bottom:12px;flex-wrap:wrap;}
+.form-group{display:flex;flex-direction:column;gap:4px;min-width:280px;flex:1;max-width:400px;}
+.form-group label{font-size:12px;color:var(--text-sub);}
+.form-group label .req{color:var(--red);margin-right:2px;}
+.form-group input,.form-group select,.form-group .custom-select-trigger{
+  height:32px;border:1px solid var(--border);padding:0 8px;font-size:13px;color:var(--text-main);
+  background:#fff;border-radius:2px;transition:border-color .2s;width:100%;
+}
+.form-group input:focus,.form-group select:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(66,132,245,.15);}
+.form-group input:disabled,.form-group select:disabled,.form-group input[readonly]{background:#F2F4F7;color:var(--text-sub);cursor:not-allowed;}
+.form-group .hint{font-size:11px;color:var(--text-disabled);}
+
+/* ===== Post Card ===== */
+.post-card{border:1px solid var(--border-light);padding:16px;margin-bottom:12px;background:#FAFBFC;position:relative;}
+.post-card-title{font-size:13px;font-weight:600;color:var(--text-main);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.post-card-remove{color:var(--red);cursor:pointer;font-size:12px;}
+.post-card-remove:hover{text-decoration:underline;}
+
+/* ===== Radio Group ===== */
+.radio-group{display:flex;gap:16px;align-items:center;height:32px;}
+.radio-group label{display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;}
+.radio-group input[type=radio]{accent-color:var(--primary);}
+
+/* ===== Org Association ===== */
+.org-assoc{margin-top:8px;padding:12px;background:#fff;border:1px solid var(--border-light);}
+.org-assoc-title{font-size:12px;font-weight:500;color:var(--text-sub);margin-bottom:8px;}
+.assoc-linked-orgs{margin-top:8px;}
+.assoc-linked-orgs table{font-size:12px;}
+.assoc-linked-orgs th{font-size:12px;height:32px;padding:0 8px;}
+.assoc-linked-orgs td{padding:4px 8px;font-size:12px;}
+
+/* ===== Multi Select Tags ===== */
+.multi-tags{display:flex;flex-wrap:wrap;gap:4px;padding:4px 0;}
+.multi-tag{background:#EDF1F7;color:var(--text-main);padding:2px 8px;font-size:12px;border-radius:2px;display:flex;align-items:center;gap:4px;}
+.multi-tag .remove{cursor:pointer;color:var(--text-sub);font-size:14px;}
+.multi-tag .remove:hover{color:var(--red);}
+
+/* ===== Custom Select (searchable dropdown) ===== */
+.custom-select{position:relative;}
+.custom-select-trigger{cursor:pointer;display:flex;align-items:center;justify-content:space-between;overflow:hidden;text-overflow:ellipsis;}
+.custom-select-trigger::after{content:'▾';font-size:10px;color:var(--text-disabled);margin-left:4px;flex-shrink:0;}
+.custom-select-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--border);box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:50;display:none;max-height:240px;overflow-y:auto;}
+.custom-select-dropdown.show{display:block;}
+.custom-select-search{width:100%;border:none;border-bottom:1px solid var(--border-light);padding:6px 8px;font-size:13px;}
+.custom-select-option{padding:6px 8px;cursor:pointer;font-size:13px;}
+.custom-select-option:hover{background:#EDF1F7;}
+.custom-select-option.selected{color:var(--primary);font-weight:500;}
+.custom-select-option.disabled{color:var(--text-disabled);cursor:not-allowed;}
+
+/* ===== Bottom Bar ===== */
+.bottom-bar{display:flex;gap:8px;justify-content:flex-start;padding-top:16px;border-top:1px solid var(--border-light);margin-top:12px;}
+
+/* ===== Log Table ===== */
+.log-section{margin-top:20px;}
+.log-section h3{font-size:14px;font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-light);}
+
+/* ===== View Mode ===== */
+.view-value{font-size:13px;color:var(--text-main);min-height:32px;display:flex;align-items:center;padding:0 8px;background:#F2F4F7;border:1px solid var(--border-light);border-radius:2px;}
+
+/* ===== Status Radio in Form ===== */
+.status-section{margin-top:4px;}
+
+/* ===== Channel Field ===== */
+.channel-row{margin-top:8px;}
+.loading-dot{width:8px;height:8px;background:#4284F5;border-radius:50%;display:inline-block;animation:pulse 1s infinite;}@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-logo">
+    <svg viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#4284F5"/><text x="4" y="17" font-size="12" fill="#fff" font-weight="bold">MI</text></svg>
+    组织中台
+  </div>
+  <div class="header-tabs">
+    <div class="header-tab active" onclick="switchDomain(this)">3C</div>
+    <div class="header-tab" onclick="switchDomain(this)">汽车</div>
+    <div class="header-tab" onclick="switchDomain(this)">售后</div>
+    <div class="header-tab" onclick="switchDomain(this)">国际</div>
+  </div>
+  <div class="header-right">
+    <span style="font-size:13px;color:var(--text-sub)">木子李</span>
+    <div class="header-avatar">李</div>
+  </div>
+</div>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb" id="breadcrumb">
+  <span onclick="showPage('list')">岗位虾管理</span>
+  <span class="sep">/</span>
+  <span class="current" id="bc-current">列表</span>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ==================== LIST PAGE ==================== -->
+<div class="content" id="page-list">
+  <!-- AI 配置助手 -->
+  <div class="card" style="margin-bottom:16px;background:linear-gradient(135deg,#F0F7FF 0%,#E8F3FF 100%);border:1px solid #BAD8FF;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <span style="font-size:20px;">🦞</span>
+      <span style="font-size:15px;font-weight:600;color:#1F2733;">AI 配置助手</span>
+      <span style="font-size:12px;color:#5F6B7A;background:#fff;padding:2px 8px;border-radius:10px;">自然语言配置岗位虾</span>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="ai-input" placeholder="试试输入：把门店运营虾A关联到京津分公司下所有门店的店长岗位" style="flex:1;height:40px;padding:0 14px;border:1px solid #C9CDD4;border-radius:6px;font-size:14px;background:#fff;" onkeydown="if(event.key==='Enter')doAiConfig()">
+      <button class="btn btn-primary" onclick="doAiConfig()" style="height:40px;padding:0 20px;white-space:nowrap;">🦞 让虾来配</button>
+    </div>
+    <div id="ai-result" style="margin-top:12px;display:none;"></div>
+    <div style="margin-top:8px;display:flex;gap:12px;flex-wrap:wrap;">
+      <span style="font-size:12px;color:#5F6B7A;">快捷指令：</span>
+      <a style="font-size:12px;cursor:pointer;" onclick="setAiInput('新增映射：龙虾237484-门店运营虾A，关联店长岗位，按组织ID关联北京朝阳大悦城店')">新增映射</a>
+      <a style="font-size:12px;cursor:pointer;" onclick="setAiInput('禁用龙虾237487的所有映射')">批量禁用</a>
+      <a style="font-size:12px;cursor:pointer;" onclick="setAiInput('查询所有门店类型且状态为启用的映射')">智能查询</a>
+      <a style="font-size:12px;cursor:pointer;" onclick="setAiInput('把巡店检查虾H的组织从专卖2区改为批量关联丰台网格')">编辑映射</a>
+      <span style="color:#C9CDD4;">|</span>
+      <a style="font-size:12px;cursor:pointer;color:#722ED1;" onclick="setAiInput('组织中台在岗位虾中的职责是什么')">💬 组织中台职责</a>
+      <a style="font-size:12px;cursor:pointer;color:#722ED1;" onclick="setAiInput('三种挂靠方式有什么区别')">💬 挂靠方式</a>
+      <a style="font-size:12px;cursor:pointer;color:#722ED1;" onclick="setAiInput('虾和人的鉴权逻辑是什么')">💬 鉴权逻辑</a>
+      <a style="font-size:12px;cursor:pointer;color:#722ED1;" onclick="setAiInput('组织关联方式有哪几种')">💬 关联方式</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="filter-area">
+      <div class="filter-item">
+        <label>龙虾ID/名称</label>
+        <input type="text" id="f-lobsterId" placeholder="请输入龙虾ID或名称" onkeydown="if(event.key==='Enter')doSearch()">
+      </div>
+      <div class="filter-item">
+        <label>mid/邮箱</label>
+        <input type="text" id="f-mid" placeholder="请输入mid或邮箱" onkeydown="if(event.key==='Enter')doSearch()">
+      </div>
+      <div class="filter-item">
+        <label>岗位类型</label>
+        <select id="f-postType"><option value="">全部</option><option>总部</option><option>分公司</option><option>小区</option><option>网格</option><option>门店</option></select>
+      </div>
+      <div class="filter-item">
+        <label>组织关联方式</label>
+        <select id="f-assocType"><option value="">全部</option><option>按组织ID关联</option><option>批量关联</option><option>无需关联</option></select>
+      </div>
+      <div class="filter-item">
+        <label>岗位ID/名称</label>
+        <select id="f-postId"><option value="">全部</option></select>
+      </div>
+      <div class="filter-item">
+        <label>组织ID/名称</label>
+        <select id="f-orgId"><option value="">全部</option></select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary" onclick="doSearch()">查询</button>
+        <button class="btn btn-default" onclick="doReset()">重置</button>
+        <button class="btn btn-primary" onclick="showPage('add')" style="margin-left:16px;">+ 新增映射</button>
+        <button class="btn btn-default" onclick="doExport()">导出</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0;">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>龙虾ID</th><th>龙虾名称</th><th>mid</th><th>邮箱</th><th>岗位类型</th><th>岗位ID</th><th>岗位名称</th>
+            <th>组织关联方式</th><th>组织ID</th><th>组织名称</th><th>状态</th>
+            <th>最后更新人</th><th>最后更新时间</th><th style="min-width:140px;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+    <div class="pagination" style="padding:12px 16px;">
+      <span id="page-info">共 10 条</span>
+      <div class="page-btns" id="page-btns"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ADD PAGE ==================== -->
+<div class="content" id="page-add" style="display:none;">
+  <div class="card">
+    <!-- Lobster Info -->
+    <div class="form-section">
+      <div class="form-section-title">龙虾信息</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label><span class="req">*</span>龙虾ID/名称</label>
+          <select id="add-lobster">
+            <option value="">请选择龙虾</option>
+            <option value="237494">【237494-数据分析虾K】</option>
+            <option value="237495">【237495-排班管理虾L】</option>
+            <option value="237496">【237496-培训助手虾M】</option>
+            <option value="237497">【237497-盘点虾N】</option>
+            <option value="237498">【237498-选品虾O】</option>
+          </select>
+          <div class="hint">数据来源：虾塘已注册的虾ID列表</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>mid</label>
+          <input type="text" id="add-mid" placeholder="请输入mid（选填）">
+          <div class="hint">由 passport 分配的虚拟 mid</div>
+        </div>
+        <div class="form-group">
+          <label>邮箱</label>
+          <input type="text" id="add-email" placeholder="请输入邮箱（选填）">
+          <div class="hint">由 passport 分配的虚拟邮箱</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Post Cards Container -->
+    <div id="add-posts-container"></div>
+
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+      <button class="btn btn-default" onclick="addPostCard('add')">+ 新增岗位</button>
+    </div>
+
+    <!-- Status -->
+    <div class="form-section">
+      <div class="form-section-title">状态</div>
+      <div class="radio-group">
+        <label><input type="radio" name="add-status" value="启用" checked> 启用</label>
+        <label><input type="radio" name="add-status" value="禁用"> 禁用</label>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <button class="btn btn-primary" onclick="submitAdd()">提交</button>
+      <button class="btn btn-default" onclick="showPage('list')">返回</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== EDIT PAGE ==================== -->
+<div class="content" id="page-edit" style="display:none;">
+  <div class="card">
+    <div class="form-section">
+      <div class="form-section-title">龙虾信息</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label><span class="req">*</span>龙虾ID/名称</label>
+          <input type="text" id="edit-lobster" value="237484 - 门店运营虾A" disabled>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>mid</label>
+          <input type="text" id="edit-mid" value="9001234" placeholder="请输入mid（选填）">
+          <div class="hint">由 passport 分配的虚拟 mid</div>
+        </div>
+        <div class="form-group">
+          <label>邮箱</label>
+          <input type="text" id="edit-email" value="shrimp_a@mi.com" placeholder="请输入邮箱（选填）">
+          <div class="hint">由 passport 分配的虚拟邮箱</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="edit-posts-container"></div>
+
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+      <button class="btn btn-default" onclick="addPostCard('edit')">+ 新增岗位</button>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">状态</div>
+      <div class="radio-group">
+        <label><input type="radio" name="edit-status" value="启用" checked> 启用</label>
+        <label><input type="radio" name="edit-status" value="禁用"> 禁用</label>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <button class="btn btn-primary" onclick="submitEdit()">提交</button>
+      <button class="btn btn-default" onclick="showPage('list')">返回</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VIEW PAGE ==================== -->
+<div class="content" id="page-view" style="display:none;">
+  <div class="card">
+    <div class="form-section">
+      <div class="form-section-title">龙虾信息</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>龙虾ID/名称</label>
+          <div class="view-value">237484 - 门店运营虾A</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>mid</label>
+          <div class="view-value">9001234</div>
+        </div>
+        <div class="form-group">
+          <label>邮箱</label>
+          <div class="view-value">shrimp_a@mi.com</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">岗位1信息</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>岗位类型</label>
+          <div class="view-value">门店</div>
+        </div>
+        <div class="form-group">
+          <label>关联岗位</label>
+          <div class="view-value">P001 - 店长</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>组织关联方式</label>
+          <div class="view-value">按组织ID关联</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>关联组织</label>
+          <div class="view-value">S001 - 小米之家·北京朝阳大悦城店</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">状态</div>
+      <div class="view-value" style="max-width:100px;"><span class="tag tag-green">启用</span></div>
+    </div>
+
+    <!-- Log Section -->
+    <div class="log-section">
+      <h3>操作日志</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>序号</th><th>时间</th><th>操作来源</th><th>操作人</th><th>操作记录</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>2026-04-18 14:30:25</td><td>组织中台</td><td>木子李（liyan）</td><td>编辑映射：<br>组织：<br>&nbsp;&nbsp;新增 S001-小米之家·北京朝阳大悦城店</td></tr>
+            <tr><td>2</td><td>2026-04-17 10:00:00</td><td>组织中台</td><td>木子李（liyan）</td><td>编辑映射：<br>岗位：由 P002-店员 改为 P001-店长</td></tr>
+            <tr><td>3</td><td>2026-04-16 09:30:45</td><td>定时任务</td><td>系统</td><td>编辑映射：<br>组织：<br>&nbsp;&nbsp;新增 S006-小米之家·北京中关村店（批量关联自动更新）</td></tr>
+            <tr><td>4</td><td>2026-04-15 14:20:10</td><td>组织中台</td><td>张三（zhangsan）</td><td>操作启用</td></tr>
+            <tr><td>5</td><td>2026-04-14 11:00:00</td><td>组织中台</td><td>张三（zhangsan）</td><td>新增映射：<br>岗位：关联 P002-店员<br>组织层级：门店<br>组织：S001-小米之家·北京朝阳大悦城店</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <button class="btn btn-default" onclick="showPage('list')">返回列表</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL ==================== -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="modal-title">确认操作</span>
+      <span class="modal-close" onclick="closeModal()">✕</span>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" id="modal-confirm" onclick="modalConfirm()">确认</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== MOCK DATA =====
+const MOCK_DATA = [
+  {id:'237484',name:'门店运营虾A',mid:'9001234',email:'shrimp_a@mi.com',postType:'门店',postId:'P001',postName:'店长',assocType:'按组织ID关联',orgIds:['S001'],orgNames:['小米之家·北京朝阳大悦城店'],status:'启用',updater:'木子李（liyan）',updateTime:'2026-04-18 14:30'},
+  {id:'237485',name:'区域财务虾B',mid:'9001235',email:'shrimp_b@mi.com',postType:'小区',postId:'P005',postName:'小区经理',assocType:'批量关联',orgIds:['D001'],orgNames:['专卖1区'],status:'启用',updater:'张三（zhangsan）',updateTime:'2026-04-18 11:20'},
+  {id:'237486',name:'库存管理虾C',mid:'9001236',email:'shrimp_c@mi.com',postType:'门店',postId:'P003',postName:'库管',assocType:'按组织ID关联',orgIds:['S002','S003'],orgNames:['小米之家·上海南京东路店','小米之家·杭州西湖银泰店'],status:'启用',updater:'李四（lisi）',updateTime:'2026-04-17 16:45'},
+  {id:'237487',name:'客服助理虾D',mid:'9001237',email:'shrimp_d@mi.com',postType:'分公司',postId:'P007',postName:'区域运营',assocType:'无需关联',orgIds:[],orgNames:[],status:'禁用',updater:'王五（wangwu）',updateTime:'2026-04-17 09:15'},
+  {id:'237488',name:'店长助手虾E',mid:'9001238',email:'shrimp_e@mi.com',postType:'门店',postId:'P001',postName:'店长',assocType:'按组织ID关联',orgIds:['S004'],orgNames:['小米之家·深圳华强北店'],status:'启用',updater:'赵六（zhaoliu）',updateTime:'2026-04-16 18:00'},
+  {id:'237489',name:'售后服务虾F',mid:'9001239',email:'shrimp_f@mi.com',postType:'网格',postId:'P004',postName:'网格经理',assocType:'按组织ID关联',orgIds:['G001','G002'],orgNames:['朝阳网格','海淀网格'],status:'启用',updater:'钱七（qianqi）',updateTime:'2026-04-16 10:30'},
+  {id:'237490',name:'分佣计算虾G',mid:'',email:'',postType:'总部',postId:'P008',postName:'总部运营',assocType:'无需关联',orgIds:[],orgNames:[],status:'禁用',updater:'孙八（sunba）',updateTime:'2026-04-15 14:20'},
+  {id:'237491',name:'巡店检查虾H',mid:'9001241',email:'shrimp_h@mi.com',postType:'小区',postId:'P006',postName:'网格经理',assocType:'批量关联',orgIds:['D002','G003'],orgNames:['专卖2区','丰台网格'],status:'启用',updater:'周九（zhoujiu）',updateTime:'2026-04-15 09:00'},
+  {id:'237492',name:'合作商财务虾I',mid:'9001242',email:'shrimp_i@mi.com',postType:'门店',postId:'P002',postName:'店员',assocType:'按组织ID关联',orgIds:['S005'],orgNames:['小米之家·广州天河城店'],status:'启用',updater:'吴十（wushi）',updateTime:'2026-04-14 16:50'},
+  {id:'237493',name:'ROI分析虾J',mid:'9001243',email:'shrimp_j@mi.com',postType:'门店',postId:'P001',postName:'店长',assocType:'批量关联',orgIds:['S101','S102','S103','S104','S105','S106','S107','S108','S109','S110','S111','S112','S113','S114','S115'],orgNames:['小米之家·成都春熙路店','小米之家·重庆解放碑店','小米之家·武汉光谷店','小米之家·长沙五一广场店','小米之家·南京新街口店','小米之家·苏州观前街店','小米之家·西安钟楼店','小米之家·郑州二七广场店','小米之家·济南泉城路店','小米之家·青岛台东店','小米之家·大连星海店','小米之家·沈阳中街店','小米之家·哈尔滨中央大街店','小米之家·昆明南屏街店','小米之家·贵阳花果园店'],status:'启用',updater:'郑十一（zheng11）',updateTime:'2026-04-14 11:30'},
+];
+
+const POST_MAP = {
+  '总部':[{id:'P008',name:'总部运营'},{id:'P009',name:'GPM'}],
+  '分公司':[{id:'P010',name:'省总'},{id:'P007',name:'区域运营'}],
+  '小区':[{id:'P005',name:'小区经理'},{id:'P006',name:'网格经理'}],
+  '网格':[{id:'P006',name:'网格经理'},{id:'P011',name:'网格专员'}],
+  '门店':[{id:'P001',name:'店长'},{id:'P002',name:'店员'},{id:'P003',name:'库管'},{id:'P004',name:'收银员'}],
+};
+
+const LEVEL_HIERARCHY = ['总部','分公司','小区','网格','门店'];
+
+const ORG_DATA = {
+  '总部':[{id:'HQ001',name:'3C总部'},{id:'HQ002',name:'汽车总部'}],
+  '分公司':[{id:'F001',name:'京津分公司'},{id:'F002',name:'浙江分公司'},{id:'F003',name:'广东分公司'},{id:'F004',name:'四川分公司'}],
+  '小区':[{id:'D001',name:'专卖1区'},{id:'D002',name:'专卖2区'},{id:'D003',name:'自营1区'},{id:'D004',name:'自营2区'}],
+  '网格':[{id:'G001',name:'朝阳网格'},{id:'G002',name:'海淀网格'},{id:'G003',name:'丰台网格'},{id:'G004',name:'西城网格'}],
+  '门店':[{id:'S001',name:'小米之家·北京朝阳大悦城店'},{id:'S002',name:'小米之家·上海南京东路店'},{id:'S003',name:'小米之家·杭州西湖银泰店'},{id:'S004',name:'小米之家·深圳华强北店'},{id:'S005',name:'小米之家·广州天河城店'},{id:'S006',name:'小米之家·北京中关村店'}],
+};
+
+let filteredData = [...MOCK_DATA].sort((a,b) => b.updateTime.localeCompare(a.updateTime));
+let currentPage = 1;
+const pageSize = 10;
+let modalCallback = null;
+let postCardCounter = {add:0,edit:0};
+
+// ===== PAGE NAVIGATION =====
+function showPage(page) {
+  ['list','add','edit','view'].forEach(p => {
+    document.getElementById('page-'+p).style.display = p===page?'block':'none';
+  });
+  const bcMap = {list:'列表',add:'新增映射',edit:'编辑映射',view:'查看映射'};
+  document.getElementById('bc-current').textContent = bcMap[page];
+  window.scrollTo(0,0);
+  if(page==='add') initAddPage();
+  if(page==='edit') initEditPage();
+}
+
+function switchDomain(el) {
+  document.querySelectorAll('.header-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ===== LIST PAGE =====
+function renderTable() {
+  const tbody = document.getElementById('table-body');
+  const start = (currentPage-1)*pageSize;
+  const pageData = filteredData.slice(start, start+pageSize);
+  
+  tbody.innerHTML = pageData.map(d => {
+    const maxRows = 10;
+    const truncate = (arr) => arr.length > maxRows ? arr.slice(0, maxRows).join('\n') + '\n...' : arr.join('\n');
+    return `
+    <tr>
+      <td>${d.id}</td>
+      <td>${d.name}</td>
+      <td>${d.mid||'-'}</td>
+      <td>${d.email||'-'}</td>
+      <td>${d.postType}</td>
+      <td>${d.postId}</td>
+      <td>${d.postName}</td>
+      <td>${d.assocType||'按组织ID关联'}</td>
+      <td class="cell-multi">${truncate(d.orgIds)}</td>
+      <td class="cell-multi">${truncate(d.orgNames)}</td>
+      <td><span class="tag ${d.status==='启用'?'tag-green':'tag-gray'}">${d.status}</span></td>
+      <td style="white-space:nowrap;">${d.updater}</td>
+      <td style="white-space:nowrap;">${d.updateTime}</td>
+      <td>
+        <div class="op-cell">
+          <a onclick="doView('${d.id}')">查看</a>
+          <a onclick="doEdit('${d.id}')">编辑</a>
+          <a onclick="doToggle('${d.id}')">${d.status==='启用'?'禁用':'启用'}</a>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('page-info').textContent = `共 ${filteredData.length} 条`;
+  renderPagination();
+}
+
+function renderPagination() {
+  const total = Math.ceil(filteredData.length / pageSize) || 1;
+  const container = document.getElementById('page-btns');
+  let html = `<button class="page-btn" ${currentPage<=1?'disabled':''} onclick="goPage(${currentPage-1})">‹</button>`;
+  for(let i=1;i<=total;i++){
+    html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  html += `<button class="page-btn" ${currentPage>=total?'disabled':''} onclick="goPage(${currentPage+1})">›</button>`;
+  container.innerHTML = html;
+}
+
+function goPage(p) { currentPage=p; renderTable(); }
+
+function doSearch() {
+  const fId = document.getElementById('f-lobsterId').value.trim();
+  const fMid = document.getElementById('f-mid').value.trim();
+  const fType = document.getElementById('f-postType').value;
+  const fAssocType = document.getElementById('f-assocType').value;
+  const fPostId = document.getElementById('f-postId').value;
+  const fOrgId = document.getElementById('f-orgId').value;
+
+  filteredData = MOCK_DATA.filter(d => {
+    if(fId && !d.id.includes(fId) && !d.name.includes(fId)) return false;
+    if(fMid && !(d.mid||'').includes(fMid) && !(d.email||'').includes(fMid)) return false;
+    if(fType && d.postType !== fType) return false;
+    if(fAssocType && d.assocType !== fAssocType) return false;
+    if(fPostId && d.postId !== fPostId && !d.postName.includes(fPostId)) return false;
+    if(fOrgId && !d.orgIds.includes(fOrgId) && !d.orgNames.some(n=>n.includes(fOrgId))) return false;
+    return true;
+  }).sort((a,b) => b.updateTime.localeCompare(a.updateTime));
+  currentPage = 1;
+  renderTable();
+}
+
+function doReset() {
+  ['f-lobsterId','f-mid'].forEach(id=>document.getElementById(id).value='');
+  ['f-postType','f-assocType','f-postId','f-orgId'].forEach(id=>document.getElementById(id).selectedIndex=0);
+  filteredData = [...MOCK_DATA].sort((a,b) => b.updateTime.localeCompare(a.updateTime));
+  currentPage = 1;
+  renderTable();
+}
+
+function populateFilterSelects() {
+  const postSel = document.getElementById('f-postId');
+  const orgSel = document.getElementById('f-orgId');
+  const allPosts = new Map();
+  const allOrgs = new Map();
+  MOCK_DATA.forEach(d => {
+    allPosts.set(d.postId, d.postId+' - '+d.postName);
+    d.orgIds.forEach((oid,i) => allOrgs.set(oid, oid+' - '+d.orgNames[i]));
+  });
+  allPosts.forEach((v,k) => { const o=document.createElement('option'); o.value=k; o.textContent=v; postSel.appendChild(o); });
+  allOrgs.forEach((v,k) => { const o=document.createElement('option'); o.value=k; o.textContent=v; orgSel.appendChild(o); });
+}
+
+// ===== TOGGLE STATUS =====
+function doToggle(id) {
+  const item = MOCK_DATA.find(d=>d.id===id);
+  if(!item) return;
+  const isEnable = item.status==='禁用';
+  let body = '';
+  if(isEnable){
+    body = `<p>请确认是否启用【${item.id}-${item.name}】的映射</p>`;
+  } else {
+    body = `<p>请确认是否禁用【${item.id}-${item.name}】的映射</p><p class="warning">禁用后，对应岗位用户将无法使用此龙虾，请谨慎操作！</p>`;
+  }
+  openModal(isEnable?'确认启用':'确认禁用', body, ()=>{
+    item.status = isEnable?'启用':'禁用';
+    renderTable();
+    showToast((isEnable?'启用':'禁用')+'成功');
+  });
+}
+
+function doEdit(id) { showPage('edit'); }
+function doView(id) { showPage('view'); }
+
+function doExport() {
+  showToast('导出成功，共 ' + filteredData.length + ' 条记录');
+}
+
+// ===== MODAL =====
+function openModal(title, body, callback) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-overlay').classList.add('show');
+  modalCallback = callback;
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+  modalCallback = null;
+}
+function modalConfirm() {
+  if(modalCallback) modalCallback();
+  closeModal();
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+// ===== POST CARD (ADD/EDIT) =====
+function createPostCardHTML(prefix, idx, prefill) {
+  const cardId = `${prefix}-post-${idx}`;
+  const pf = prefill || {};
+  const canRemove = idx > 1;
+  
+  return `
+  <div class="post-card" id="${cardId}">
+    <div class="post-card-title">
+      <span>岗位${idx}信息</span>
+      ${canRemove?`<span class="post-card-remove" onclick="removePostCard('${cardId}')">✕ 删除</span>`:''}
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label><span class="req">*</span>岗位类型</label>
+        <select id="${cardId}-type" onchange="onPostTypeChange('${cardId}')">
+          <option value="">请选择</option>
+          <option ${pf.postType==='总部'?'selected':''}>总部</option>
+          <option ${pf.postType==='分公司'?'selected':''}>分公司</option>
+          <option ${pf.postType==='小区'?'selected':''}>小区</option>
+          <option ${pf.postType==='网格'?'selected':''}>网格</option>
+          <option ${pf.postType==='门店'?'selected':''}>门店</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label><span class="req">*</span>关联岗位</label>
+        <select id="${cardId}-post" onchange="onPostChange('${cardId}')">
+          <option value="">请选择岗位</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:8px;">
+      <label style="font-size:12px;color:var(--text-sub)"><span class="req">*</span>组织关联方式</label>
+      <div class="radio-group" style="margin-top:4px;">
+        <label><input type="radio" name="${cardId}-assocType" value="byId" ${!pf.assocType||pf.assocType==='byId'?'checked':''} onchange="onAssocTypeChange('${cardId}')"> 按组织ID关联</label>
+        <label><input type="radio" name="${cardId}-assocType" value="batch" ${pf.assocType==='batch'?'checked':''} onchange="onAssocTypeChange('${cardId}')"> 批量关联</label>
+        <label><input type="radio" name="${cardId}-assocType" value="noAssoc" ${pf.assocType==='noAssoc'?'checked':''} onchange="onAssocTypeChange('${cardId}')"> 无需关联</label>
+      </div>
+    </div>
+
+    <div class="org-assoc" id="${cardId}-assoc-area">
+      <!-- Dynamic content based on assoc type -->
+    </div>
+  </div>`;
+}
+
+function addPostCard(prefix) {
+  postCardCounter[prefix]++;
+  const idx = postCardCounter[prefix];
+  const container = document.getElementById(prefix+'-posts-container');
+  container.insertAdjacentHTML('beforeend', createPostCardHTML(prefix, idx));
+  onAssocTypeChange(prefix+'-post-'+idx);
+}
+
+function removePostCard(cardId) {
+  const el = document.getElementById(cardId);
+  if(el) el.remove();
+}
+
+function onPostTypeChange(cardId) {
+  const typeVal = document.getElementById(cardId+'-type').value;
+  const postSel = document.getElementById(cardId+'-post');
+  postSel.innerHTML = '<option value="">请选择岗位</option>';
+  if(typeVal && POST_MAP[typeVal]) {
+    POST_MAP[typeVal].forEach(p => {
+      const o = document.createElement('option');
+      o.value = p.id;
+      o.textContent = p.id+' - '+p.name;
+      postSel.appendChild(o);
+    });
+  }
+  onAssocTypeChange(cardId);
+}
+
+function onPostChange(cardId) {
+  const postSel = document.getElementById(cardId+'-post');
+  const typeSel = document.getElementById(cardId+'-type');
+  const postId = postSel.value;
+  if(!postId) return;
+  // Auto-fill post type if empty
+  if(!typeSel.value) {
+    for(const [type, posts] of Object.entries(POST_MAP)) {
+      if(posts.some(p=>p.id===postId)) {
+        typeSel.value = type;
+        break;
+      }
+    }
+  }
+}
+
+function onAssocTypeChange(cardId) {
+  const assocArea = document.getElementById(cardId+'-assoc-area');
+  const assocType = document.querySelector(`input[name="${cardId}-assocType"]:checked`)?.value || 'byId';
+  const postType = document.getElementById(cardId+'-type')?.value || '';
+
+  if(assocType === 'byId') {
+    const orgs = postType ? (ORG_DATA[postType]||[]) : [];
+    assocArea.innerHTML = `
+      <div class="org-assoc-title">按组织ID关联</div>
+      <div class="form-group" style="max-width:600px;">
+        <label>组织ID/名称（可多选）</label>
+        <select id="${cardId}-org-select" multiple style="height:auto;min-height:32px;padding:4px;" onchange="updateOrgTags('${cardId}')">
+          ${orgs.map(o=>`<option value="${o.id}">${o.id} - ${o.name}</option>`).join('')}
+        </select>
+        <div class="multi-tags" id="${cardId}-org-tags"></div>
+        ${!postType?'<div class="hint">请先选择岗位类型</div>':''}
+      </div>
+    `;
+  } else if(assocType === 'batch') {
+    const lvlIdx = LEVEL_HIERARCHY.indexOf(postType);
+    const availLevels = lvlIdx > 0 ? LEVEL_HIERARCHY.slice(0, lvlIdx) : [];
+    assocArea.innerHTML = `
+      <div class="org-assoc-title">批量关联</div>
+      <div style="margin:8px 0 12px;padding:8px 12px;background:#E8F3FF;border-left:3px solid #4284F5;font-size:12px;color:#1F2733;line-height:1.6;">选择批量关联，后续批量设置的信息会自动更新：如岗位是门店岗位，按小区配置了A小区，当A小区下的门店变更时，关联门店会自动更新</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>选择组织层级</label>
+          <select id="${cardId}-batch-level" onchange="onBatchLevelChange('${cardId}')">
+            <option value="">请选择</option>
+            ${availLevels.map(l=>`<option>${l}</option>`).join('')}
+          </select>
+          ${!postType?'<div class="hint">请先选择岗位类型</div>':''}
+        </div>
+      </div>
+      <div id="${cardId}-batch-detail"></div>
+    `;
+  } else if(assocType === 'noAssoc') {
+    const postEl = document.getElementById(cardId+'-post');
+    const postName = postEl ? (postEl.selectedOptions[0]?.textContent?.split(' - ')[1] || '岗位') : '岗位';
+    assocArea.innerHTML = `
+      <div style="margin:12px 0;padding:10px 14px;background:#E8F3FF;border-left:3px solid #4284F5;font-size:13px;color:#1F2733;line-height:1.6;">
+        代表该领域所有 <strong>${postName}</strong> 岗位的用户都可以使用
+      </div>
+    `;
+  }
+}
+
+function updateOrgTags(cardId) {
+  const sel = document.getElementById(cardId+'-org-select');
+  const tagsEl = document.getElementById(cardId+'-org-tags');
+  if(!sel||!tagsEl) return;
+  const selected = Array.from(sel.selectedOptions);
+  tagsEl.innerHTML = selected.map(o=>`<span class="multi-tag">${o.textContent}<span class="remove" onclick="deselectOrg('${cardId}','${o.value}')">×</span></span>`).join('');
+}
+
+function deselectOrg(cardId, val) {
+  const sel = document.getElementById(cardId+'-org-select');
+  if(!sel) return;
+  Array.from(sel.options).forEach(o=>{if(o.value===val) o.selected=false;});
+  updateOrgTags(cardId);
+}
+
+function onBatchLevelChange(cardId) {
+  const level = document.getElementById(cardId+'-batch-level').value;
+  const detail = document.getElementById(cardId+'-batch-detail');
+  if(!level) { detail.innerHTML=''; return; }
+  
+  const orgs = ORG_DATA[level] || [];
+  const postType = document.getElementById(cardId+'-type')?.value || '';
+  const showChannel = (level==='小区'||level==='网格');
+  const activeDomain = document.querySelector('.header-tab.active')?.textContent || '3C';
+  
+  detail.innerHTML = `
+    <div style="margin-top:8px;">
+      <div class="form-row">
+        <div class="form-group" style="max-width:500px;">
+          <label>按${level}配置：</label>
+          <select id="${cardId}-batch-orgs" multiple style="height:auto;min-height:32px;padding:4px;" onchange="onBatchOrgsChange('${cardId}')">
+            ${orgs.map(o=>`<option value="${o.id}">${o.id} - ${o.name}</option>`).join('')}
+          </select>
+          <div class="multi-tags" id="${cardId}-batch-tags"></div>
+        </div>
+      </div>
+      ${showChannel && activeDomain==='3C' ? `
+      <div class="form-row channel-row">
+        <div class="form-group" style="max-width:300px;">
+          <label>渠道</label>
+          <div class="radio-group">
+            <label><input type="radio" name="${cardId}-channel" value="全部" checked onchange="onBatchOrgsChange('${cardId}')"> 全部</label>
+            <label><input type="radio" name="${cardId}-channel" value="米家" onchange="onBatchOrgsChange('${cardId}')"> 米家</label>
+            <label><input type="radio" name="${cardId}-channel" value="授权" onchange="onBatchOrgsChange('${cardId}')"> 授权</label>
+          </div>
+        </div>
+      </div>` : ''}
+      <div class="assoc-linked-orgs" id="${cardId}-linked-orgs"></div>
+    </div>
+  `;
+}
+
+function onBatchOrgsChange(cardId) {
+  const sel = document.getElementById(cardId+'-batch-orgs');
+  const tagsEl = document.getElementById(cardId+'-batch-tags');
+  const linkedEl = document.getElementById(cardId+'-linked-orgs');
+  if(!sel) return;
+  
+  const selected = Array.from(sel.selectedOptions);
+  if(tagsEl) tagsEl.innerHTML = selected.map(o=>`<span class="multi-tag">${o.textContent}<span class="remove" onclick="batchDeselectOrg('${cardId}','${o.value}')">×</span></span>`).join('');
+  
+  // Show linked child orgs
+  if(linkedEl && selected.length > 0) {
+    const postType = document.getElementById(cardId+'-type')?.value || '门店';
+    const childOrgs = ORG_DATA[postType] || [];
+    const channel = document.querySelector(`input[name="${cardId}-channel"]:checked`)?.value || '全部';
+    
+    if(childOrgs.length > 0) {
+      linkedEl.innerHTML = `
+        <div style="margin-top:8px;font-size:12px;color:var(--text-sub);margin-bottom:4px;">已关联组织（${childOrgs.length}个${channel!=='全部'?'，渠道：'+channel:''}）：</div>
+        <table>
+          <thead><tr><th>组织ID</th><th>组织名称</th><th>层级</th></tr></thead>
+          <tbody>${childOrgs.map(o=>`<tr><td>${o.id}</td><td>${o.name}</td><td>${postType}</td></tr>`).join('')}</tbody>
+        </table>
+      `;
+    }
+  } else if(linkedEl) {
+    linkedEl.innerHTML = '';
+  }
+}
+
+function batchDeselectOrg(cardId, val) {
+  const sel = document.getElementById(cardId+'-batch-orgs');
+  if(!sel) return;
+  Array.from(sel.options).forEach(o=>{if(o.value===val) o.selected=false;});
+  onBatchOrgsChange(cardId);
+}
+
+
+
+// ===== ADD PAGE =====
+function initAddPage() {
+  postCardCounter.add = 0;
+  document.getElementById('add-posts-container').innerHTML = '';
+  document.getElementById('add-lobster').selectedIndex = 0;
+  document.querySelector('input[name="add-status"][value="启用"]').checked = true;
+  addPostCard('add');
+}
+
+function submitAdd() {
+  const lobster = document.getElementById('add-lobster').value;
+  if(!lobster) { showToast('请选择龙虾'); return; }
+  
+  // Check at least one post card has type and post filled
+  const cards = document.querySelectorAll('#add-posts-container .post-card');
+  let valid = true;
+  cards.forEach(card => {
+    const typeEl = card.querySelector('select[id$="-type"]');
+    const postEl = card.querySelector('select[id$="-post"]');
+    if(!typeEl?.value || !postEl?.value) valid = false;
+  });
+  if(!valid) { showToast('请完善岗位信息'); return; }
+
+  showToast('新增成功');
+  setTimeout(()=>showPage('list'), 500);
+}
+
+// ===== AI 配置助手 =====
+function setAiInput(text) {
+  document.getElementById('ai-input').value = text;
+}
+
+function doAiConfig() {
+  const input = document.getElementById('ai-input').value.trim();
+  if(!input) return;
+  const resultDiv = document.getElementById('ai-result');
+  resultDiv.style.display = 'block';
+  resultDiv.innerHTML = `<div style="padding:12px;background:#fff;border-radius:6px;border:1px solid #E5E6EB;">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+      <span class="loading-dot"></span>
+      <span style="font-size:13px;color:#5F6B7A;">🦞 正在解析指令...</span>
+    </div>
+  </div>`;
+  
+  setTimeout(() => {
+    let parsed = parseAiIntent(input);
+    if(parsed.action === 'qa') {
+      resultDiv.innerHTML = `<div style="padding:14px;background:#fff;border-radius:6px;border:1px solid #E5E6EB;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+          <span style="font-size:16px;">🦞</span>
+          <span style="font-size:13px;font-weight:600;color:#1F2733;">岗位虾知识问答</span>
+        </div>
+        <div style="font-size:13px;color:#1F2733;line-height:1.8;white-space:pre-wrap;padding:10px 12px;background:#F7F8FA;border-radius:4px;">${parsed.answer}</div>
+        <div style="margin-top:10px;display:flex;gap:8px;">
+          <button class="btn btn-default" onclick="cancelAiConfig()" style="height:32px;font-size:13px;">关闭</button>
+        </div>
+      </div>`;
+    } else {
+      resultDiv.innerHTML = `<div style="padding:14px;background:#fff;border-radius:6px;border:1px solid #E5E6EB;">
+        <div style="font-size:13px;font-weight:600;color:#1F2733;margin-bottom:10px;">🦞 解析结果</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:12px;">
+          ${parsed.fields.map(f => `<div style="padding:8px 10px;background:#F7F8FA;border-radius:4px;"><span style="font-size:11px;color:#86909C;">${f.label}</span><br><span style="font-size:13px;color:#1F2733;font-weight:500;">${f.value}</span></div>`).join('')}
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary" onclick="confirmAiConfig()" style="height:32px;font-size:13px;">✅ 确认执行</button>
+          <button class="btn btn-default" onclick="editAiConfig()" style="height:32px;font-size:13px;">✏️ 微调后提交</button>
+          <button class="btn btn-default" onclick="cancelAiConfig()" style="height:32px;font-size:13px;">取消</button>
+        </div>
+      </div>`;
+    }
+  }, 1500);
+}
+
+// ===== Q&A 知识库 =====
+const QA_KB = [
+  {q:['什么是岗位虾','岗位虾是什么','岗位虾定义','岗位虾概念'], a:'岗位虾是给特定岗位配置的专属AI龙虾，作为组织的“数字员工”，拥有组织节点、岗位ID，但没有人类身份信息。\n\n• 本质：数字员工，与人类员工共用同一棵组织树和岗位体系\n• 身份来源：虾塘统一分配虾ID，passport提供虚拟mid和邮箱\n• 与人的关系：独立建表，不混在员工表中；虾之间无上下级关系\n• 岗位含义：虾的岗位本质是“资源包的分组标识”，便于批量管理权限\n• 记忆特性：有记忆且需要记忆隔离；人员离职后虾仍存在，记忆可继承给接任者'},
+  {q:['组织中台职责','组织中台在岗位虾中的职责','组织中台做什么','组织中台负责什么'], a:'组织中台在岗位虾体系中的核心职责：\n\n① 提供主数据服务：维护虾的岗位映射和组织挂靠关系\n② 后台管理页面：提供岗位虾管理的增删改查操作界面\n③ 查询接口：提供“虾是什么岗位、挂在哪”的主数据查询\n④ 不做运行时鉴权：鉴权由天工 + 统一资源网关在调用链路上实时完成\n\n简单说：组织中台 = 岗位虾的“户籍登记处”，只管“虾是谁、在哪”，不管“虾能干什么”。'},
+  {q:['虾塘是什么','虾塘职责','虾塘做什么'], a:'虾塘是虾管理平台，负责：\n• 虾的创建、注册和生命周期管理\n• 统一分配虾ID\n• 管理虾的技能包（skill）\n• 管理虾的记忆和会话\n\n组织中台的虾ID数据来源就是虾塘接口。'},
+  {q:['天工是什么','天工职责','天工做什么'], a:'天工是权限管理平台，负责：\n• 为虾分配功能权限（资源包）\n• 运行时鉴权判断\n• 统一资源网关控制\n\n组织中台提供岗位+组织数据 → 天工基于这些数据做权限判断。'},
+  {q:['挂靠方式','三种挂靠','全国一虾','多店一虾','一店一虾','虾怎么挂靠组织'], a:'虾有三种挂靠组织的方式：\n\n① 全国一虾：按领域挂靠（如通用客服虾），整个公司共用一只虾，根据人的权限范围返回结果\n② 多店一虾：一只虾挂多个组织节点（如区域运营虾），根据人的权限范围返回结果\n③ 一店一虾：每店独立一只虾ID（如门店专属虾），最简单，与人的逻辑一致\n\n采取哪种方式主要取决于虾塘的容量上限（记忆上限、会话上限）。'},
+  {q:['鉴权逻辑','权限判断','虾和人怎么鉴权','会话权限'], a:'鉴权三种场景：\n\n① 人直接操作系统：用人的身份 token，校验人自身权限\n② 人通过虾操作：AI携带人的身任token，权限 = 人权限 ∩ 虾权限（取交集）\n③ 虾自主执行：虾携带agent_id，权限由虾的岗位+组织挂靠决定\n\n能否会话的判断规则：\n• 岗位有交集 且 组织有交集 → 可以会话\n• 岗位交集决定功能范围，组织交集决定数据范围'},
+  {q:['组织关联方式','按组织ID关联','批量关联','无需关联','关联方式区别'], a:'组织关联方式有三种：\n\n① 按组织ID关联：手动选择具体组织节点，精确控制\n② 批量关联：选择上级组织层级，自动关联该层级下所有岗位对应的组织。当下属组织变更时自动更新\n③ 无需关联：代表该领域所有该岗位的用户都可以使用，不限制组织\n\n选择建议：精确控制用①，动态维护用②，全员可用用③'},
+  {q:['资源包是什么','资源包'], a:'资源包是一组功能权限和数据权限的集合。虾通过资源包获得具体能力。\n\n资源包由天工管理，与岗位挂钩。不同岗位可用的资源包不同。'},
+  {q:['虾和人的区别','虾账号和人员账号'], a:'岗位虾 vs 人员账号：\n\n• 数据权限：人=静态配置；虾=通过虾的组织+发起对话的人的组织动态决定\n• 功能权限：人=固定功能；虾=通过虾的岗位+发起对话的人的岗位动态决定\n• 存储：人=员工表；虾=独立虾表，不混在一起'},
+  {q:['系统协作链路','虾塘天工组织中台关系','各系统分工'], a:'系统协作链路：\n\n虾塘（上游）→ 组织中台（主数据）→ 天工（下游权限）\n\n• 虾塘：创建虾、分配虾ID、管理技能包和记忆\n• 组织中台：维护虾的岗位映射+组织挂靠关系（主数据）\n• 天工：基于岗位+组织数据做运行时权限判断\n• passport：提供虾的虚拟mid和邮箱\n\n组织中台不做运行时鉴权，只提供主数据查询。'},
+  {q:['待探讨问题','待定义问题','还有什么问题没解决'], a:'当前待探讨问题：\n\n① 多人同时调用同一只虾的并发和记忆上限（待虾塘定义）\n② 岗位和技能之间是否要建立映射（当前逻辑：只要能用这只虾，就能用它所有技能）\n③ 虾记忆隔离的具体实现方式（待虾塘技术方案）'}
+];
+
+function matchQA(input) {
+  let bestMatch = null, bestScore = 0;
+  for(const item of QA_KB) {
+    for(const q of item.q) {
+      let score = 0;
+      const keywords = q.split(/[\u3001,\s]+/);
+      keywords.forEach(kw => { if(input.includes(kw)) score += kw.length; });
+      if(input.includes(q)) score += q.length * 2;
+      if(score > bestScore) { bestScore = score; bestMatch = item; }
+    }
+  }
+  return bestScore >= 4 ? bestMatch : null;
+}
+
+function parseAiIntent(input) {
+  // 如果包含明确疪问词，直接走 QA
+  const questionWords = ['是什么','什么是','有哪几','有哪些','有什么','怎么','为什么','如何','怎样','区别','定义','职责','功能','原理','逻辑'];
+  if(questionWords.some(w => input.includes(w))) {
+    const qa = matchQA(input);
+    if(qa) return { action: 'qa', answer: qa.a };
+  }
+  // 再尝试匹配操作指令
+  if(input.includes('新增') || (input.includes('关联') && !questionWords.some(w => input.includes(w)))) {
+    return { action: '新增映射', fields: [
+      {label:'操作类型', value:'新增映射'},
+      {label:'龙虾', value: input.match(/龙虾(\S+)/)?.[1] || '门店运营虾A'},
+      {label:'岗位类型', value: input.includes('店长') ? '门店' : '总部'},
+      {label:'关联岗位', value: input.includes('店长') ? '店长' : '运营'},
+      {label:'组织关联方式', value: input.includes('批量') ? '批量关联' : input.includes('无需') ? '无需关联' : '按组织ID关联'},
+      {label:'组织', value: input.match(/关联(.+?)(?:$|，|,)/)?.[1] || '北京朝阳大悦城店'}
+    ]};
+  } else if(input.includes('禁用')) {
+    return { action: '批量禁用', fields: [
+      {label:'操作类型', value:'批量禁用'},
+      {label:'目标龙虾', value: input.match(/龙虾(\S+)/)?.[1] || '客服助理虾D'},
+      {label:'影响范围', value:'该龙虾全部映射（1条）'},
+      {label:'状态变更', value:'启用 → 禁用'}
+    ]};
+  } else if(input.includes('查询') || input.includes('查找')) {
+    return { action: '智能查询', fields: [
+      {label:'操作类型', value:'智能查询'},
+      {label:'筛选条件', value: input.includes('门店') ? '岗位类型=门店' : '全部'},
+      {label:'状态过滤', value: input.includes('启用') ? '启用' : '全部'},
+      {label:'预计结果', value:'匹配 6 条记录'}
+    ]};
+  } else if(input.includes('改') || input.includes('编辑') || input.includes('修改')) {
+    return { action: '编辑映射', fields: [
+      {label:'操作类型', value:'编辑映射'},
+      {label:'目标龙虾', value: input.match(/[虾龙虾](\S+)/)?.[1] || '巡店检查虾H'},
+      {label:'变更内容', value:'组织关联方式变更'},
+      {label:'变更前', value:'按组织ID关联 → 专取2区'},
+      {label:'变更后', value:'批量关联 → 丰台网格'}
+    ]};
+  }
+  // 最后尝试 Q&A
+  const qa = matchQA(input);
+  if(qa) {
+    return { action: 'qa', answer: qa.a };
+  }
+  return { action: '通用', fields: [{label:'操作', value:input}] };
+}
+
+function confirmAiConfig() {
+  const resultDiv = document.getElementById('ai-result');
+  resultDiv.innerHTML = `<div style="padding:12px;background:#E8FFEA;border-radius:6px;border:1px solid #A9E5AB;display:flex;align-items:center;gap:8px;">
+    <span style="font-size:18px;">✅</span>
+    <span style="font-size:13px;color:#1F7A1F;font-weight:500;">执行成功！已自动完成配置，列表已刷新。</span>
+  </div>`;
+  setTimeout(() => { resultDiv.style.display = 'none'; document.getElementById('ai-input').value = ''; }, 3000);
+}
+
+function editAiConfig() {
+  showPage('add');
+  const resultDiv = document.getElementById('ai-result');
+  resultDiv.style.display = 'none';
+}
+
+function cancelAiConfig() {
+  document.getElementById('ai-result').style.display = 'none';
+  document.getElementById('ai-input').value = '';
+}
+
+// ===== EDIT PAGE =====
+function initEditPage() {
+  postCardCounter.edit = 0;
+  document.getElementById('edit-posts-container').innerHTML = '';
+  document.querySelector('input[name="edit-status"][value="启用"]').checked = true;
+  
+  // Add prefilled card
+  postCardCounter.edit++;
+  const container = document.getElementById('edit-posts-container');
+  container.innerHTML = createPostCardHTML('edit', 1, {postType:'门店', assocType:'byId'});
+  
+  // Set post type and populate posts
+  setTimeout(()=>{
+    const typeEl = document.getElementById('edit-post-1-type');
+    if(typeEl) { typeEl.value = '门店'; onPostTypeChange('edit-post-1'); }
+    setTimeout(()=>{
+      const postEl = document.getElementById('edit-post-1-post');
+      if(postEl) postEl.value = 'P001';
+      // Select org
+      setTimeout(()=>{
+        const orgSel = document.getElementById('edit-post-1-org-select');
+        if(orgSel) {
+          Array.from(orgSel.options).forEach(o=>{if(o.value==='S001') o.selected=true;});
+          updateOrgTags('edit-post-1');
+        }
+      },100);
+    },50);
+  },50);
+}
+
+function submitEdit() {
+  showToast('编辑成功');
+  setTimeout(()=>showPage('list'), 500);
+}
+
+// ===== INIT =====
+populateFilterSelects();
+renderTable();
+</script>
+</body>
+</html>
