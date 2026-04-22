@@ -262,6 +262,10 @@ table tbody tr{transition:background .15s;}
         <input type="text" id="f-mid" placeholder="请输入mid或邮箱" onkeydown="if(event.key==='Enter')doSearch()">
       </div>
       <div class="filter-item">
+        <label>龙虾状态</label>
+        <select id="f-lobsterStatus"><option value="">全部</option><option>启用</option><option>禁用</option></select>
+      </div>
+      <div class="filter-item">
         <label>岗位类型</label>
         <select id="f-postType"><option value="">全部</option><option>总部</option><option>分公司</option><option>小区</option><option>网格</option><option>门店</option></select>
       </div>
@@ -272,6 +276,10 @@ table tbody tr{transition:background .15s;}
       <div class="filter-item">
         <label>岗位ID/名称</label>
         <select id="f-postId"><option value="">全部</option></select>
+      </div>
+      <div class="filter-item">
+        <label>岗位状态</label>
+        <select id="f-postStatus"><option value="">全部</option><option>有效</option><option>无效</option></select>
       </div>
       <div class="filter-item">
         <label>组织ID/名称</label>
@@ -291,7 +299,7 @@ table tbody tr{transition:background .15s;}
       <table>
         <thead>
           <tr>
-            <th>龙虾ID</th><th>龙虾名称</th><th>mid</th><th>邮箱</th><th>岗位类型</th><th>岗位名称</th>
+            <th>龙虾ID</th><th>龙虾名称</th><th>mid</th><th>邮箱</th><th>岗位名称</th>
             <th>组织关联方式</th><th>状态</th>
             <th>最后更新人</th><th>最后更新时间</th><th style="min-width:140px;">操作</th>
           </tr>
@@ -477,12 +485,12 @@ table tbody tr{transition:background .15s;}
             <tr><th>序号</th><th>时间</th><th>操作来源</th><th>操作人</th><th>操作记录</th></tr>
           </thead>
           <tbody>
-            <tr><td>1</td><td>2026-04-20 16:45:12</td><td><span class="tag" style="background:rgba(99,102,241,.1);color:#6366F1;font-size:11px;padding:2px 8px;">AI配置助手</span></td><td>木子李（liyan）</td><td>编辑映射：<br>组织：<br>&nbsp;&nbsp;- 方式：由 按组织ID关联 改为 批量关联<br>&nbsp;&nbsp;- 层级：由 门店 改为 小区<br>&nbsp;&nbsp;- 组织ID/名称：<br>&nbsp;&nbsp;&nbsp;&nbsp;新增 D001-专卖1区<br><span style="color:#6B7194;font-size:12px;">原始指令：把门店运营虾A的组织改为批量关联专卖1区</span></td></tr>
+            <tr><td>1</td><td>2026-04-20 16:45:12</td><td><span class="tag" style="background:rgba(99,102,241,.1);color:#6366F1;font-size:11px;padding:2px 8px;">AI配置助手</span></td><td>木子李（liyan）</td><td>编辑映射：<br>岗位状态：由 有效 改为 有效（未变更）<br>组织：<br>&nbsp;&nbsp;- 方式：由 按组织ID关联 改为 批量关联<br>&nbsp;&nbsp;- 层级：由 门店 改为 小区<br>&nbsp;&nbsp;- 组织ID/名称：<br>&nbsp;&nbsp;&nbsp;&nbsp;新增 D001-专卖1区<br><span style="color:#6B7194;font-size:12px;">原始指令：把门店运营虾A的组织改为批量关联专卖1区</span></td></tr>
             <tr><td>2</td><td>2026-04-18 14:30:25</td><td>组织中台</td><td>木子李（liyan）</td><td>编辑映射：<br>组织：<br>&nbsp;&nbsp;- 组织ID/名称：<br>&nbsp;&nbsp;&nbsp;&nbsp;新增 S001-小米之家·北京朝阳大悦城店</td></tr>
             <tr><td>3</td><td>2026-04-17 10:00:00</td><td>组织中台</td><td>木子李（liyan）</td><td>编辑映射：<br>- 岗位：由 P002-店员 改为 P001-店长</td></tr>
             <tr><td>4</td><td>2026-04-16 09:30:45</td><td>定时任务</td><td>系统</td><td>编辑映射：<br>组织：<br>&nbsp;&nbsp;- 组织ID/名称：<br>&nbsp;&nbsp;&nbsp;&nbsp;新增 S006-小米之家·北京中关村店（批量关联自动更新）</td></tr>
             <tr><td>5</td><td>2026-04-15 14:20:10</td><td>组织中台</td><td>张三（zhangsan）</td><td>操作启用</td></tr>
-            <tr><td>6</td><td>2026-04-14 11:00:00</td><td>组织中台</td><td>张三（zhangsan）</td><td>新增映射：<br>岗位：关联 P002-店员<br>组织层级：关联 门店<br>组织：S001-小米之家·北京朝阳大悦城店</td></tr>
+            <tr><td>6</td><td>2026-04-14 11:00:00</td><td>组织中台</td><td>张三（zhangsan）</td><td>新增映射：<br>岗位：关联 P002-店员<br>岗位状态：有效<br>组织层级：关联 门店<br>组织：S001-小米之家·北京朝阳大悦城店</td></tr>
           </tbody>
         </table>
       </div>
@@ -520,7 +528,7 @@ const MOCK_DATA = [
   {id:'237489',name:'售后服务虾F',mid:'9001239',email:'shrimp_f@mi.com',postType:'网格',postId:'P004',postName:'网格经理',assocType:'按组织ID关联',orgIds:['G001','G002'],orgNames:['朝阳网格','海淀网格'],status:'启用',updater:'钱七（qianqi）',updateTime:'2026-04-16 10:30'},
   {id:'237490',name:'分佣计算虾G',mid:'',email:'',postType:'总部',postId:'P008',postName:'总部运营',postActive:false,assocType:'无需关联',orgIds:[],orgNames:[],status:'禁用',updater:'孙八（sunba）',updateTime:'2026-04-15 14:20'},
   {id:'237491',name:'巡店检查虾H',mid:'9001241',email:'shrimp_h@mi.com',postType:'小区',postId:'P006',postName:'网格经理',assocType:'批量关联',orgIds:['D002','G003'],orgNames:['专卖2区','丰台网格'],status:'启用',updater:'周九（zhoujiu）',updateTime:'2026-04-15 09:00'},
-  {id:'237492',name:'合作商财务虾I',mid:'9001242',email:'shrimp_i@mi.com',postType:'门店',postId:'P002',postName:'店员',assocType:'按组织ID关联',orgIds:['S005'],orgNames:['小米之家·广州天河城店'],status:'启用',updater:'吴十（wushi）',updateTime:'2026-04-14 16:50'},
+  {id:'237492',name:'合作商财务虾I',mid:'9001242',email:'shrimp_i@mi.com',postType:'门店',postId:'P002',postName:'店员',postActive:false,assocType:'按组织ID关联',orgIds:['S005'],orgNames:['小米之家·广州天河城店'],status:'启用',updater:'吴十（wushi）',updateTime:'2026-04-14 16:50'},
   {id:'237493',name:'ROI分析虾J',mid:'9001243',email:'shrimp_j@mi.com',postType:'门店',postId:'P001',postName:'店长',assocType:'批量关联',orgIds:['S101','S102','S103','S104','S105','S106','S107','S108','S109','S110','S111','S112','S113','S114','S115'],orgNames:['小米之家·成都春熙路店','小米之家·重庆解放碑店','小米之家·武汉光谷店','小米之家·长沙五一广场店','小米之家·南京新街口店','小米之家·苏州观前街店','小米之家·西安钟楼店','小米之家·郑州二七广场店','小米之家·济南泉城路店','小米之家·青岛台东店','小米之家·大连星海店','小米之家·沈阳中街店','小米之家·哈尔滨中央大街店','小米之家·昆明南屏街店','小米之家·贵阳花果园店'],status:'启用',updater:'郑十一（zheng11）',updateTime:'2026-04-14 11:30'},
 ];
 
@@ -579,7 +587,6 @@ function renderTable() {
       <td>${d.name}</td>
       <td>${d.mid||'-'}</td>
       <td>${d.email||'-'}</td>
-      <td>${d.postType}</td>
       <td><span style="${postNameColor}">${d.postName}</span></td>
       <td>${d.assocType||'按组织ID关联'}</td>
       <td><span class="tag ${d.status==='启用'?'tag-green':'tag-gray'}">${d.status}</span></td>
@@ -621,13 +628,21 @@ function doSearch() {
   const fPostId = document.getElementById('f-postId').value;
   const fOrgId = document.getElementById('f-orgId').value;
 
+  const fLobsterStatus = document.getElementById('f-lobsterStatus').value;
+  const fPostStatus = document.getElementById('f-postStatus').value;
   filteredData = MOCK_DATA.filter(d => {
     if(fId && !d.id.includes(fId)) return false;
     if(fName && !d.name.includes(fName)) return false;
     if(fMid && !(d.mid||'').includes(fMid) && !(d.email||'').includes(fMid)) return false;
+    if(fLobsterStatus && d.status !== fLobsterStatus) return false;
     if(fType && d.postType !== fType) return false;
     if(fAssocType && d.assocType !== fAssocType) return false;
     if(fPostId && d.postId !== fPostId && !d.postName.includes(fPostId)) return false;
+    if(fPostStatus) {
+      const isValid = d.postActive !== false;
+      if(fPostStatus === '有效' && !isValid) return false;
+      if(fPostStatus === '无效' && isValid) return false;
+    }
     if(fOrgId && !d.orgIds.includes(fOrgId) && !d.orgNames.some(n=>n.includes(fOrgId))) return false;
     return true;
   }).sort((a,b) => b.updateTime.localeCompare(a.updateTime));
@@ -637,7 +652,7 @@ function doSearch() {
 
 function doReset() {
   ['f-lobsterId','f-lobsterName','f-mid'].forEach(id=>document.getElementById(id).value='');
-  ['f-postType','f-assocType','f-postId','f-orgId'].forEach(id=>document.getElementById(id).selectedIndex=0);
+  ['f-lobsterStatus','f-postType','f-assocType','f-postId','f-postStatus','f-orgId'].forEach(id=>document.getElementById(id).selectedIndex=0);
   filteredData = [...MOCK_DATA].sort((a,b) => b.updateTime.localeCompare(a.updateTime));
   currentPage = 1;
   renderTable();
@@ -709,7 +724,7 @@ function showToast(msg) {
 function createPostCardHTML(prefix, idx, prefill) {
   const cardId = `${prefix}-post-${idx}`;
   const pf = prefill || {};
-  const canRemove = idx > 1;
+  const canRemove = idx > 1 && prefix === 'add'; // 新增时第1个不可删，编辑时已有岗位不可删
   
   return `
   <div class="post-card" id="${cardId}">
@@ -753,8 +768,8 @@ function createPostCardHTML(prefix, idx, prefill) {
     <div style="margin-top:12px;">
       <label style="font-size:12px;color:var(--text-sub);font-weight:500;">岗位状态</label>
       <div class="radio-group" style="margin-top:4px;">
-        <label><input type="radio" name="${cardId}-postStatus" value="启用" checked> 启用</label>
-        <label><input type="radio" name="${cardId}-postStatus" value="不启用"> 不启用</label>
+        <label><input type="radio" name="${cardId}-postStatus" value="有效" checked> 有效</label>
+        <label><input type="radio" name="${cardId}-postStatus" value="无效"> 无效</label>
       </div>
     </div>
   </div>`;
@@ -965,6 +980,7 @@ function submitAdd() {
   
   // Check at least one post card has type and post filled
   const cards = document.querySelectorAll('#add-posts-container .post-card');
+  if(cards.length === 0) { showToast('至少要关联一个岗位'); return; }
   let valid = true;
   cards.forEach(card => {
     const typeEl = card.querySelector('select[id$="-type"]');
@@ -1139,6 +1155,9 @@ function initEditPage() {
     setTimeout(()=>{
       const postEl = document.getElementById('edit-post-1-post');
       if(postEl) postEl.value = 'P001';
+      // PRD: 编辑时，已有岗位的类型、名称不可编辑
+      if(typeEl) typeEl.disabled = true;
+      if(postEl) postEl.disabled = true;
       // Select org
       setTimeout(()=>{
         const orgSel = document.getElementById('edit-post-1-org-select');
