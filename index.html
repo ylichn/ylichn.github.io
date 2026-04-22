@@ -250,8 +250,12 @@ table tbody tr{transition:background .15s;}
   <div class="card">
     <div class="filter-area">
       <div class="filter-item">
-        <label>龙虾ID/名称</label>
-        <input type="text" id="f-lobsterId" placeholder="请输入龙虾ID或名称" onkeydown="if(event.key==='Enter')doSearch()">
+        <label>龙虾ID</label>
+        <input type="text" id="f-lobsterId" placeholder="请输入龙虾ID" onkeydown="if(event.key==='Enter')doSearch()">
+      </div>
+      <div class="filter-item">
+        <label>龙虾名称</label>
+        <input type="text" id="f-lobsterName" placeholder="请输入龙虾名称" onkeydown="if(event.key==='Enter')doSearch()">
       </div>
       <div class="filter-item">
         <label>mid/邮箱</label>
@@ -287,8 +291,8 @@ table tbody tr{transition:background .15s;}
       <table>
         <thead>
           <tr>
-            <th>龙虾ID</th><th>龙虾名称</th><th>mid</th><th>邮箱</th><th>岗位类型</th><th>岗位ID</th><th>岗位名称</th>
-            <th>组织关联方式</th><th>组织ID</th><th>组织名称</th><th>状态</th>
+            <th>龙虾ID</th><th>龙虾名称</th><th>mid</th><th>邮箱</th><th>岗位类型</th><th>岗位名称</th>
+            <th>组织关联方式</th><th>状态</th>
             <th>最后更新人</th><th>最后更新时间</th><th style="min-width:140px;">操作</th>
           </tr>
         </thead>
@@ -311,7 +315,7 @@ table tbody tr{transition:background .15s;}
       <div class="form-row">
         <div class="form-group">
           <label><span class="req">*</span>龙虾ID/名称</label>
-          <select id="add-lobster">
+          <select id="add-lobster" onchange="validateLobster()">
             <option value="">请选择龙虾</option>
             <option value="237494">【237494-数据分析虾K】</option>
             <option value="237495">【237495-排班管理虾L】</option>
@@ -320,18 +324,21 @@ table tbody tr{transition:background .15s;}
             <option value="237498">【237498-选品虾O】</option>
           </select>
           <div class="hint">数据来源：虾塘已注册的虾ID列表</div>
+          <div id="add-lobster-warn" style="display:none;margin-top:4px;padding:6px 10px;background:rgba(239,68,68,.08);border-left:3px solid #EF4444;border-radius:0 6px 6px 0;font-size:12px;color:#DC2626;"></div>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>mid</label>
-          <input type="text" id="add-mid" placeholder="请输入mid（选填）">
+          <input type="text" id="add-mid" placeholder="请输入mid（选填）" onblur="validateMid('add')">
           <div class="hint">由 passport 分配的虚拟 mid</div>
+          <div id="add-mid-warn" style="display:none;margin-top:4px;padding:6px 10px;background:rgba(239,68,68,.08);border-left:3px solid #EF4444;border-radius:0 6px 6px 0;font-size:12px;color:#DC2626;"></div>
         </div>
         <div class="form-group">
           <label>邮箱</label>
-          <input type="text" id="add-email" placeholder="请输入邮箱（选填）">
+          <input type="text" id="add-email" placeholder="请输入邮箱（选填）" onblur="validateEmail('add')">
           <div class="hint">由 passport 分配的虚拟邮箱</div>
+          <div id="add-email-warn" style="display:none;margin-top:4px;padding:6px 10px;background:rgba(239,68,68,.08);border-left:3px solid #EF4444;border-radius:0 6px 6px 0;font-size:12px;color:#DC2626;"></div>
         </div>
       </div>
     </div>
@@ -373,13 +380,15 @@ table tbody tr{transition:background .15s;}
       <div class="form-row">
         <div class="form-group">
           <label>mid</label>
-          <input type="text" id="edit-mid" value="9001234" placeholder="请输入mid（选填）">
+          <input type="text" id="edit-mid" value="9001234" placeholder="请输入mid（选填）" onblur="validateMid('edit')">
           <div class="hint">由 passport 分配的虚拟 mid</div>
+          <div id="edit-mid-warn" style="display:none;margin-top:4px;padding:6px 10px;background:rgba(239,68,68,.08);border-left:3px solid #EF4444;border-radius:0 6px 6px 0;font-size:12px;color:#DC2626;"></div>
         </div>
         <div class="form-group">
           <label>邮箱</label>
-          <input type="text" id="edit-email" value="shrimp_a@mi.com" placeholder="请输入邮箱（选填）">
+          <input type="text" id="edit-email" value="shrimp_a@mi.com" placeholder="请输入邮箱（选填）" onblur="validateEmail('edit')">
           <div class="hint">由 passport 分配的虚拟邮箱</div>
+          <div id="edit-email-warn" style="display:none;margin-top:4px;padding:6px 10px;background:rgba(239,68,68,.08);border-left:3px solid #EF4444;border-radius:0 6px 6px 0;font-size:12px;color:#DC2626;"></div>
         </div>
       </div>
     </div>
@@ -468,11 +477,12 @@ table tbody tr{transition:background .15s;}
             <tr><th>序号</th><th>时间</th><th>操作来源</th><th>操作人</th><th>操作记录</th></tr>
           </thead>
           <tbody>
-            <tr><td>1</td><td>2026-04-18 14:30:25</td><td>组织中台</td><td>木子李（liyan）</td><td>编辑映射：<br>组织：<br>&nbsp;&nbsp;新增 S001-小米之家·北京朝阳大悦城店</td></tr>
-            <tr><td>2</td><td>2026-04-17 10:00:00</td><td>组织中台</td><td>木子李（liyan）</td><td>编辑映射：<br>岗位：由 P002-店员 改为 P001-店长</td></tr>
-            <tr><td>3</td><td>2026-04-16 09:30:45</td><td>定时任务</td><td>系统</td><td>编辑映射：<br>组织：<br>&nbsp;&nbsp;新增 S006-小米之家·北京中关村店（批量关联自动更新）</td></tr>
-            <tr><td>4</td><td>2026-04-15 14:20:10</td><td>组织中台</td><td>张三（zhangsan）</td><td>操作启用</td></tr>
-            <tr><td>5</td><td>2026-04-14 11:00:00</td><td>组织中台</td><td>张三（zhangsan）</td><td>新增映射：<br>岗位：关联 P002-店员<br>组织层级：门店<br>组织：S001-小米之家·北京朝阳大悦城店</td></tr>
+            <tr><td>1</td><td>2026-04-20 16:45:12</td><td><span class="tag" style="background:rgba(99,102,241,.1);color:#6366F1;font-size:11px;padding:2px 8px;">AI配置助手</span></td><td>木子李（liyan）</td><td>编辑映射：<br>组织：<br>&nbsp;&nbsp;- 方式：由 按组织ID关联 改为 批量关联<br>&nbsp;&nbsp;- 层级：由 门店 改为 小区<br>&nbsp;&nbsp;- 组织ID/名称：<br>&nbsp;&nbsp;&nbsp;&nbsp;新增 D001-专卖1区<br><span style="color:#6B7194;font-size:12px;">原始指令：把门店运营虾A的组织改为批量关联专卖1区</span></td></tr>
+            <tr><td>2</td><td>2026-04-18 14:30:25</td><td>组织中台</td><td>木子李（liyan）</td><td>编辑映射：<br>组织：<br>&nbsp;&nbsp;- 组织ID/名称：<br>&nbsp;&nbsp;&nbsp;&nbsp;新增 S001-小米之家·北京朝阳大悦城店</td></tr>
+            <tr><td>3</td><td>2026-04-17 10:00:00</td><td>组织中台</td><td>木子李（liyan）</td><td>编辑映射：<br>- 岗位：由 P002-店员 改为 P001-店长</td></tr>
+            <tr><td>4</td><td>2026-04-16 09:30:45</td><td>定时任务</td><td>系统</td><td>编辑映射：<br>组织：<br>&nbsp;&nbsp;- 组织ID/名称：<br>&nbsp;&nbsp;&nbsp;&nbsp;新增 S006-小米之家·北京中关村店（批量关联自动更新）</td></tr>
+            <tr><td>5</td><td>2026-04-15 14:20:10</td><td>组织中台</td><td>张三（zhangsan）</td><td>操作启用</td></tr>
+            <tr><td>6</td><td>2026-04-14 11:00:00</td><td>组织中台</td><td>张三（zhangsan）</td><td>新增映射：<br>岗位：关联 P002-店员<br>组织层级：关联 门店<br>组织：S001-小米之家·北京朝阳大悦城店</td></tr>
           </tbody>
         </table>
       </div>
@@ -505,10 +515,10 @@ const MOCK_DATA = [
   {id:'237484',name:'门店运营虾A',mid:'9001234',email:'shrimp_a@mi.com',postType:'门店',postId:'P001',postName:'店长',assocType:'按组织ID关联',orgIds:['S001'],orgNames:['小米之家·北京朝阳大悦城店'],status:'启用',updater:'木子李（liyan）',updateTime:'2026-04-18 14:30'},
   {id:'237485',name:'区域财务虾B',mid:'9001235',email:'shrimp_b@mi.com',postType:'小区',postId:'P005',postName:'小区经理',assocType:'批量关联',orgIds:['D001'],orgNames:['专卖1区'],status:'启用',updater:'张三（zhangsan）',updateTime:'2026-04-18 11:20'},
   {id:'237486',name:'库存管理虾C',mid:'9001236',email:'shrimp_c@mi.com',postType:'门店',postId:'P003',postName:'库管',assocType:'按组织ID关联',orgIds:['S002','S003'],orgNames:['小米之家·上海南京东路店','小米之家·杭州西湖银泰店'],status:'启用',updater:'李四（lisi）',updateTime:'2026-04-17 16:45'},
-  {id:'237487',name:'客服助理虾D',mid:'9001237',email:'shrimp_d@mi.com',postType:'分公司',postId:'P007',postName:'区域运营',assocType:'无需关联',orgIds:[],orgNames:[],status:'禁用',updater:'王五（wangwu）',updateTime:'2026-04-17 09:15'},
+  {id:'237487',name:'客服助理虾D',mid:'9001237',email:'shrimp_d@mi.com',postType:'分公司',postId:'P007',postName:'区域运营',postActive:false,assocType:'无需关联',orgIds:[],orgNames:[],status:'禁用',updater:'王五（wangwu）',updateTime:'2026-04-17 09:15'},
   {id:'237488',name:'店长助手虾E',mid:'9001238',email:'shrimp_e@mi.com',postType:'门店',postId:'P001',postName:'店长',assocType:'按组织ID关联',orgIds:['S004'],orgNames:['小米之家·深圳华强北店'],status:'启用',updater:'赵六（zhaoliu）',updateTime:'2026-04-16 18:00'},
   {id:'237489',name:'售后服务虾F',mid:'9001239',email:'shrimp_f@mi.com',postType:'网格',postId:'P004',postName:'网格经理',assocType:'按组织ID关联',orgIds:['G001','G002'],orgNames:['朝阳网格','海淀网格'],status:'启用',updater:'钱七（qianqi）',updateTime:'2026-04-16 10:30'},
-  {id:'237490',name:'分佣计算虾G',mid:'',email:'',postType:'总部',postId:'P008',postName:'总部运营',assocType:'无需关联',orgIds:[],orgNames:[],status:'禁用',updater:'孙八（sunba）',updateTime:'2026-04-15 14:20'},
+  {id:'237490',name:'分佣计算虾G',mid:'',email:'',postType:'总部',postId:'P008',postName:'总部运营',postActive:false,assocType:'无需关联',orgIds:[],orgNames:[],status:'禁用',updater:'孙八（sunba）',updateTime:'2026-04-15 14:20'},
   {id:'237491',name:'巡店检查虾H',mid:'9001241',email:'shrimp_h@mi.com',postType:'小区',postId:'P006',postName:'网格经理',assocType:'批量关联',orgIds:['D002','G003'],orgNames:['专卖2区','丰台网格'],status:'启用',updater:'周九（zhoujiu）',updateTime:'2026-04-15 09:00'},
   {id:'237492',name:'合作商财务虾I',mid:'9001242',email:'shrimp_i@mi.com',postType:'门店',postId:'P002',postName:'店员',assocType:'按组织ID关联',orgIds:['S005'],orgNames:['小米之家·广州天河城店'],status:'启用',updater:'吴十（wushi）',updateTime:'2026-04-14 16:50'},
   {id:'237493',name:'ROI分析虾J',mid:'9001243',email:'shrimp_j@mi.com',postType:'门店',postId:'P001',postName:'店长',assocType:'批量关联',orgIds:['S101','S102','S103','S104','S105','S106','S107','S108','S109','S110','S111','S112','S113','S114','S115'],orgNames:['小米之家·成都春熙路店','小米之家·重庆解放碑店','小米之家·武汉光谷店','小米之家·长沙五一广场店','小米之家·南京新街口店','小米之家·苏州观前街店','小米之家·西安钟楼店','小米之家·郑州二七广场店','小米之家·济南泉城路店','小米之家·青岛台东店','小米之家·大连星海店','小米之家·沈阳中街店','小米之家·哈尔滨中央大街店','小米之家·昆明南屏街店','小米之家·贵阳花果园店'],status:'启用',updater:'郑十一（zheng11）',updateTime:'2026-04-14 11:30'},
@@ -562,8 +572,7 @@ function renderTable() {
   const pageData = filteredData.slice(start, start+pageSize);
   
   tbody.innerHTML = pageData.map(d => {
-    const maxRows = 10;
-    const truncate = (arr) => arr.length > maxRows ? arr.slice(0, maxRows).join('\n') + '\n...' : arr.join('\n');
+    const postNameColor = d.postActive===false ? 'color:#A0A3BD;' : 'color:#6366F1;cursor:pointer;';
     return `
     <tr>
       <td>${d.id}</td>
@@ -571,11 +580,8 @@ function renderTable() {
       <td>${d.mid||'-'}</td>
       <td>${d.email||'-'}</td>
       <td>${d.postType}</td>
-      <td>${d.postId}</td>
-      <td>${d.postName}</td>
+      <td><span style="${postNameColor}">${d.postName}</span></td>
       <td>${d.assocType||'按组织ID关联'}</td>
-      <td class="cell-multi">${truncate(d.orgIds)}</td>
-      <td class="cell-multi">${truncate(d.orgNames)}</td>
       <td><span class="tag ${d.status==='启用'?'tag-green':'tag-gray'}">${d.status}</span></td>
       <td style="white-space:nowrap;">${d.updater}</td>
       <td style="white-space:nowrap;">${d.updateTime}</td>
@@ -608,6 +614,7 @@ function goPage(p) { currentPage=p; renderTable(); }
 
 function doSearch() {
   const fId = document.getElementById('f-lobsterId').value.trim();
+  const fName = document.getElementById('f-lobsterName').value.trim();
   const fMid = document.getElementById('f-mid').value.trim();
   const fType = document.getElementById('f-postType').value;
   const fAssocType = document.getElementById('f-assocType').value;
@@ -615,7 +622,8 @@ function doSearch() {
   const fOrgId = document.getElementById('f-orgId').value;
 
   filteredData = MOCK_DATA.filter(d => {
-    if(fId && !d.id.includes(fId) && !d.name.includes(fId)) return false;
+    if(fId && !d.id.includes(fId)) return false;
+    if(fName && !d.name.includes(fName)) return false;
     if(fMid && !(d.mid||'').includes(fMid) && !(d.email||'').includes(fMid)) return false;
     if(fType && d.postType !== fType) return false;
     if(fAssocType && d.assocType !== fAssocType) return false;
@@ -628,7 +636,7 @@ function doSearch() {
 }
 
 function doReset() {
-  ['f-lobsterId','f-mid'].forEach(id=>document.getElementById(id).value='');
+  ['f-lobsterId','f-lobsterName','f-mid'].forEach(id=>document.getElementById(id).value='');
   ['f-postType','f-assocType','f-postId','f-orgId'].forEach(id=>document.getElementById(id).selectedIndex=0);
   filteredData = [...MOCK_DATA].sort((a,b) => b.updateTime.localeCompare(a.updateTime));
   currentPage = 1;
@@ -740,6 +748,14 @@ function createPostCardHTML(prefix, idx, prefill) {
 
     <div class="org-assoc" id="${cardId}-assoc-area">
       <!-- Dynamic content based on assoc type -->
+    </div>
+
+    <div style="margin-top:12px;">
+      <label style="font-size:12px;color:var(--text-sub);font-weight:500;">岗位状态</label>
+      <div class="radio-group" style="margin-top:4px;">
+        <label><input type="radio" name="${cardId}-postStatus" value="启用" checked> 启用</label>
+        <label><input type="radio" name="${cardId}-postStatus" value="不启用"> 不启用</label>
+      </div>
     </div>
   </div>`;
 }
@@ -857,8 +873,19 @@ function onBatchLevelChange(cardId) {
   
   const orgs = ORG_DATA[level] || [];
   const postType = document.getElementById(cardId+'-type')?.value || '';
-  const showChannel = (level==='小区'||level==='网格');
-  const activeDomain = document.querySelector('.header-tab.active')?.textContent || '3C';
+  const activeDomain = document.querySelector('.header-tab.active')?.textContent?.trim() || '3C';
+  let showChannel = false;
+  let channelOptions = '';
+  let channelMulti = false;
+  if(activeDomain === '3C') {
+    showChannel = (level==='小区'||level==='网格');
+    channelOptions = '<label><input type="radio" name="${cardId}-channel" value="全部" checked onchange="onBatchOrgsChange(\'${cardId}\')"> 全部</label><label><input type="radio" name="${cardId}-channel" value="米家" onchange="onBatchOrgsChange(\'${cardId}\')"> 米家</label><label><input type="radio" name="${cardId}-channel" value="授权" onchange="onBatchOrgsChange(\'${cardId}\')"> 授权</label>';
+  } else if(activeDomain === '售后') {
+    showChannel = (level==='总部'||level==='分公司');
+    channelMulti = true;
+    channelOptions = ['全部','上门','送修','寄修','备件','修整工厂'].map(c=>'<label><input type="checkbox" name="${cardId}-channel" value="'+c+'" onchange="onBatchOrgsChange(\'${cardId}\')"> '+c+'</label>').join('');
+  }
+  // 汽车/国际 不展示渠道
   
   detail.innerHTML = `
     <div style="margin-top:8px;">
@@ -871,14 +898,12 @@ function onBatchLevelChange(cardId) {
           <div class="multi-tags" id="${cardId}-batch-tags"></div>
         </div>
       </div>
-      ${showChannel && activeDomain==='3C' ? `
+      ${showChannel ? `
       <div class="form-row channel-row">
-        <div class="form-group" style="max-width:300px;">
-          <label>渠道</label>
-          <div class="radio-group">
-            <label><input type="radio" name="${cardId}-channel" value="全部" checked onchange="onBatchOrgsChange('${cardId}')"> 全部</label>
-            <label><input type="radio" name="${cardId}-channel" value="米家" onchange="onBatchOrgsChange('${cardId}')"> 米家</label>
-            <label><input type="radio" name="${cardId}-channel" value="授权" onchange="onBatchOrgsChange('${cardId}')"> 授权</label>
+        <div class="form-group" style="max-width:500px;">
+          <label>渠道${channelMulti ? '（可多选）' : ''}</label>
+          <div class="radio-group" style="flex-wrap:wrap;">
+            ${channelOptions}
           </div>
         </div>
       </div>` : ''}
@@ -1080,6 +1105,7 @@ function confirmAiConfig() {
   resultDiv.innerHTML = `<div style="padding:14px;background:linear-gradient(135deg,#ECFDF5,#F0FDF4);border-radius:10px;border:1px solid rgba(16,185,129,.2);display:flex;align-items:center;gap:8px;">
     <span style="font-size:18px;">✅</span>
     <span style="font-size:13px;color:#059669;font-weight:600;">执行成功！已自动完成配置，列表已刷新。</span>
+    <span style="font-size:11px;color:#6B7194;margin-left:8px;">（操作来源：AI配置助手）</span>
   </div>`;
   setTimeout(() => { resultDiv.style.display = 'none'; document.getElementById('ai-input').value = ''; }, 3000);
 }
@@ -1128,6 +1154,85 @@ function initEditPage() {
 function submitEdit() {
   showToast('编辑成功');
   setTimeout(()=>showPage('list'), 500);
+}
+
+
+// ===== LOBSTER VALIDATION =====
+const DOMAIN_BINDINGS = {
+  '237484': {domain:'3C', status:'启用'},
+  '237485': {domain:'3C', status:'启用'},
+  '237486': {domain:'3C', status:'启用'},
+  '237487': {domain:'3C', status:'禁用'},
+  '237488': {domain:'3C', status:'启用'},
+  '237489': {domain:'汽车', status:'启用'},
+  '237490': {domain:'售后', status:'禁用'},
+};
+const MID_BINDINGS = {'9001234':'门店运营虾A','9001235':'区域财务虾B','9001236':'库存管理虾C','9001237':'客服助理虾D','9001238':'店长助手虾E','9001239':'售后服务虾F'};
+const EMAIL_BINDINGS = {'shrimp_a@mi.com':'门店运营虾A','shrimp_b@mi.com':'区域财务虾B','shrimp_c@mi.com':'库存管理虾C','shrimp_d@mi.com':'客服助理虾D','shrimp_e@mi.com':'店长助手虾E','shrimp_f@mi.com':'售后服务虾F','shrimp_h@mi.com':'巡店检查虾H','shrimp_i@mi.com':'合作商财务虾I','shrimp_j@mi.com':'ROI分析虾J'};
+
+function validateLobster() {
+  const sel = document.getElementById('add-lobster');
+  const warn = document.getElementById('add-lobster-warn');
+  const val = sel.value;
+  if(!val) { warn.style.display='none'; return; }
+  const activeDomain = document.querySelector('.header-tab.active')?.textContent?.trim() || '3C';
+  const binding = DOMAIN_BINDINGS[val];
+  if(binding && binding.status==='启用') {
+    if(binding.domain === activeDomain) {
+      warn.innerHTML = '⚠️ 当前龙虾已存在映射，将自动跳转至编辑页面';
+      warn.style.display = 'block';
+      warn.style.borderLeftColor = '#F59E0B';
+      warn.style.background = 'rgba(245,158,11,.08)';
+      warn.style.color = '#B45309';
+      setTimeout(()=>{ showPage('edit'); warn.style.display='none'; }, 2000);
+    } else {
+      warn.innerHTML = '❌ 当前龙虾 ' + val + ' 已被 <strong>' + binding.domain + '</strong> 绑定，不可在 ' + activeDomain + ' 再次添加';
+      warn.style.display = 'block';
+      warn.style.borderLeftColor = '#EF4444';
+      warn.style.background = 'rgba(239,68,68,.08)';
+      warn.style.color = '#DC2626';
+    }
+  } else {
+    warn.style.display='none';
+  }
+}
+
+function validateMid(prefix) {
+  const input = document.getElementById(prefix+'-mid');
+  const warn = document.getElementById(prefix+'-mid-warn');
+  if(!warn) return;
+  const val = input.value.trim();
+  if(!val) { warn.style.display='none'; return; }
+  // Mock: check if mid is "real"
+  if(val.length < 5 || !/^\d+$/.test(val)) {
+    warn.textContent = '当前mid未找到，请重新输入';
+    warn.style.display='block'; return;
+  }
+  // Check uniqueness
+  if(MID_BINDINGS[val]) {
+    warn.innerHTML = '当前mid ' + val + ' 已经被 <strong>' + MID_BINDINGS[val] + '</strong> 绑定';
+    warn.style.display='block'; return;
+  }
+  warn.style.display='none';
+}
+
+function validateEmail(prefix) {
+  const input = document.getElementById(prefix+'-email');
+  const warn = document.getElementById(prefix+'-email-warn');
+  if(!warn) return;
+  const val = input.value.trim();
+  if(!val) { warn.style.display='none'; return; }
+  // Format check
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val)) {
+    warn.textContent = '邮箱格式不正确，请检查';
+    warn.style.display='block'; return;
+  }
+  // Uniqueness
+  if(EMAIL_BINDINGS[val]) {
+    warn.innerHTML = '当前邮箱 ' + val + ' 已经被 <strong>' + EMAIL_BINDINGS[val] + '</strong> 绑定，请前往虾塘更改';
+    warn.style.display='block'; return;
+  }
+  warn.style.display='none';
 }
 
 // ===== INIT =====
