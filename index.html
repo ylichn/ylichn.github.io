@@ -616,8 +616,8 @@ function showPage(page) {
   }
   
   // Scroll content area to top
-  const contentEl = document.getElementById('page-'+page);
-  if(contentEl) contentEl.scrollTop = 0;
+  const sc = document.querySelector('.scroll-content');
+  if(sc) sc.scrollTop = 0;
   
   if(page==='add') initAddPage();
   if(page==='edit') initEditPage();
