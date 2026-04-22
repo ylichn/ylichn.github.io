@@ -8,7 +8,7 @@
 /* ===== HIUI Reset & Base ===== */
 *{margin:0;padding:0;box-sizing:border-box;}
 body{margin:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5;color:#1E1B3A;background:#F8FAFF;}
-.scroll-content{flex:1;overflow-y:auto;}
+.scroll-content{flex:1;overflow-y:auto;min-height:0;}
 a{color:#6366F1;text-decoration:none;cursor:pointer;}
 a:hover{color:#4F46E5;}
 input,select,button,textarea{font-family:inherit;font-size:14px;outline:none;}
@@ -33,7 +33,7 @@ table{border-collapse:collapse;width:100%;}
 .content{animation:fadeIn .35s ease-out;}
 
 /* ===== Header ===== */
-.header{height:56px;background:var(--nav-bg);display:flex;align-items:center;padding:0 28px;border-bottom:none;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.18);}
+.header{height:56px;background:var(--nav-bg);display:flex;align-items:center;padding:0 28px;border-bottom:none;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.18);flex-shrink:0;}
 .header-logo{font-size:17px;font-weight:700;color:#fff;margin-right:36px;display:flex;align-items:center;gap:10px;letter-spacing:-.3px;}
 .header-logo svg{width:24px;height:24px;}
 .header-tabs{display:flex;gap:4px;height:100%;}
@@ -46,7 +46,7 @@ table{border-collapse:collapse;width:100%;}
 .header-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#818CF8);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;box-shadow:0 0 0 2px rgba(255,255,255,.2);}
 
 /* ===== Breadcrumb ===== */
-.breadcrumb{padding:16px 28px 4px;font-size:13px;color:var(--text-sub);}
+.breadcrumb{padding:16px 28px 4px;font-size:13px;color:var(--text-sub);flex-shrink:0;}
 .breadcrumb span{cursor:pointer;transition:color .15s;}
 .breadcrumb span:hover{color:var(--primary);}
 .breadcrumb .sep{margin:0 6px;color:var(--border);}
