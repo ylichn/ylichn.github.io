@@ -561,8 +561,8 @@ table tbody tr{transition:background .15s;}
 </div><!-- /scroll-content -->
 
 <script>
-// ===== MOCK DATA BY DOMAIN =====
-const MOCK_DATA_3C = [
+// ===== MOCK DATA =====
+const MOCK_DATA = [
   {id:'237484',name:'门店运营虾A',mid:'9001234',email:'shrimp_a@mi.com',postType:'门店',postId:'P001',postName:'店长',assocType:'按组织ID关联',orgIds:['S001'],orgNames:['小米之家·北京朝阳大悦城店'],status:'启用',updater:'木子李（liyan）',updateTime:'2026-04-18 14:30'},
   {id:'237485',name:'区域财务虾B',mid:'9001235',email:'shrimp_b@mi.com',postType:'小区',postId:'P005',postName:'小区经理',assocType:'批量关联',orgIds:['D001'],orgNames:['专卖1区'],status:'启用',updater:'张三（zhangsan）',updateTime:'2026-04-18 11:20'},
   {id:'237486',name:'库存管理虾C',mid:'9001236',email:'shrimp_c@mi.com',postType:'门店',postId:'P003',postName:'库管',assocType:'按组织ID关联',orgIds:['S002','S003'],orgNames:['小米之家·上海南京东路店','小米之家·杭州西湖银泰店'],status:'启用',updater:'李四（lisi）',updateTime:'2026-04-17 16:45'},
@@ -572,72 +572,33 @@ const MOCK_DATA_3C = [
   {id:'237490',name:'分佣计算虾G',mid:'',email:'',postType:'总部',postId:'P008',postName:'总部运营',postActive:false,assocType:'无需关联',orgIds:[],orgNames:[],status:'禁用',updater:'孙八（sunba）',updateTime:'2026-04-15 14:20'},
   {id:'237491',name:'巡店检查虾H',mid:'9001241',email:'shrimp_h@mi.com',postType:'小区',postId:'P006',postName:'网格经理',assocType:'批量关联',orgIds:['D002','G003'],orgNames:['专卖2区','丰台网格'],status:'启用',updater:'周九（zhoujiu）',updateTime:'2026-04-15 09:00'},
   {id:'237492',name:'合作商财务虾I',mid:'9001242',email:'shrimp_i@mi.com',postType:'门店',postId:'P002',postName:'店员',postActive:false,assocType:'按组织ID关联',orgIds:['S005'],orgNames:['小米之家·广州天河城店'],status:'启用',updater:'吴十（wushi）',updateTime:'2026-04-14 16:50'},
-  {id:'237493',name:'ROI分析虾J',mid:'9001243',email:'shrimp_j@mi.com',postType:'门店',postId:'P001',postName:'店长',assocType:'批量关联',orgIds:['S101','S102','S103'],orgNames:['小米之家·成都春熙路店','小米之家·重庆解放碑店','小米之家·武汉光谷店'],status:'启用',updater:'郑十一（zheng11）',updateTime:'2026-04-14 11:30'},
+  {id:'237493',name:'ROI分析虾J',mid:'9001243',email:'shrimp_j@mi.com',postType:'门店',postId:'P001',postName:'店长',assocType:'批量关联',orgIds:['S101','S102','S103','S104','S105','S106','S107','S108','S109','S110','S111','S112','S113','S114','S115'],orgNames:['小米之家·成都春熙路店','小米之家·重庆解放碑店','小米之家·武汉光谷店','小米之家·长沙五一广场店','小米之家·南京新街口店','小米之家·苏州观前街店','小米之家·西安钟楼店','小米之家·郑州二七广场店','小米之家·济南泉城路店','小米之家·青岛台东店','小米之家·大连星海店','小米之家·沈阳中街店','小米之家·哈尔滨中央大街店','小米之家·昆明南屏街店','小米之家·贵阳花果园店'],status:'启用',updater:'郑十一（zheng11）',updateTime:'2026-04-14 11:30'},
 ];
 
-const MOCK_DATA_AUTO = [
-  {id:'337001',name:'交付运营虾甲',mid:'8001001',email:'auto_a@mi.com',postType:'交付中心',postId:'A001',postName:'交付专员',assocType:'按组织ID关联',orgIds:['AC001'],orgNames:['小米汽车·北京亦庄交付中心'],status:'启用',updater:'陈一（cheny）',updateTime:'2026-04-20 10:10'},
-  {id:'337002',name:'试驾管理虾乙',mid:'8001002',email:'auto_b@mi.com',postType:'展厅',postId:'A002',postName:'试驾顾问',assocType:'按组织ID关联',orgIds:['AS001','AS002'],orgNames:['小米汽车·北京三里屯展厅','小米汽车·上海虹桥展厅'],status:'启用',updater:'林二（linr）',updateTime:'2026-04-20 09:30'},
-  {id:'337003',name:'服务顾问虾丙',mid:'8001003',email:'auto_c@mi.com',postType:'服务中心',postId:'A003',postName:'SA（服务顾问）',assocType:'批量关联',orgIds:['ASC001'],orgNames:['华北服务中心'],status:'启用',updater:'吴三（wus）',updateTime:'2026-04-19 17:00'},
-  {id:'337004',name:'PDI检查虾丁',mid:'8001004',email:'auto_d@mi.com',postType:'交付中心',postId:'A004',postName:'PDI技师',assocType:'按组织ID关联',orgIds:['AC002'],orgNames:['小米汽车·上海松江交付中心'],status:'启用',updater:'赵四（zhaoq）',updateTime:'2026-04-19 14:20'},
-  {id:'337005',name:'汽车金融虾戊',mid:'8001005',email:'auto_e@mi.com',postType:'展厅',postId:'A005',postName:'金融顾问',postActive:false,assocType:'无需关联',orgIds:[],orgNames:[],status:'禁用',updater:'孙五（sunw）',updateTime:'2026-04-18 11:00'},
-  {id:'337006',name:'维保调度虾己',mid:'8001006',email:'auto_f@mi.com',postType:'服务中心',postId:'A003',postName:'SA（服务顾问）',assocType:'按组织ID关联',orgIds:['ASC002','ASC003'],orgNames:['华东服务中心','华南服务中心'],status:'启用',updater:'周六（zhoul）',updateTime:'2026-04-18 09:45'},
-  {id:'337007',name:'展厅经理虾庚',mid:'8001007',email:'auto_g@mi.com',postType:'展厅',postId:'A006',postName:'展厅经理',assocType:'批量关联',orgIds:['ASR001'],orgNames:['华中大区展厅'],status:'启用',updater:'郑七（zhenq）',updateTime:'2026-04-17 16:30'},
-  {id:'337008',name:'库存调拨虾辛',mid:'',email:'',postType:'大区',postId:'A007',postName:'区域运营经理',postActive:false,assocType:'无需关联',orgIds:[],orgNames:[],status:'禁用',updater:'钱八（qianb）',updateTime:'2026-04-17 10:00'},
-  {id:'337009',name:'充电网络虾壬',mid:'8001009',email:'auto_i@mi.com',postType:'服务中心',postId:'A008',postName:'充电运营专员',assocType:'按组织ID关联',orgIds:['ASC001','ASC002'],orgNames:['华北服务中心','华东服务中心'],status:'启用',updater:'陈九（chenj）',updateTime:'2026-04-16 15:20'},
-];
-
-const MOCK_DATA_SERVICE = [
-  {id:'437001',name:'维修调度虾α',mid:'7001001',email:'svc_a@mi.com',postType:'服务站',postId:'SV001',postName:'维修技师',assocType:'按组织ID关联',orgIds:['SS001'],orgNames:['小米授权服务站·北京望京'],status:'启用',updater:'黄一（huangy）',updateTime:'2026-04-21 11:00'},
-  {id:'437002',name:'配件管理虾β',mid:'7001002',email:'svc_b@mi.com',postType:'维修中心',postId:'SV002',postName:'配件专员',assocType:'批量关联',orgIds:['SR001'],orgNames:['华北维修中心'],status:'启用',updater:'刘二（liue）',updateTime:'2026-04-21 09:15'},
-  {id:'437003',name:'客诉处理虾γ',mid:'7001003',email:'svc_c@mi.com',postType:'服务站',postId:'SV003',postName:'客服专员',assocType:'按组织ID关联',orgIds:['SS002','SS003'],orgNames:['小米授权服务站·上海徐汇','小米授权服务站·上海浦东'],status:'启用',updater:'吴三（wus）',updateTime:'2026-04-20 17:30'},
-  {id:'437004',name:'质检虾δ',mid:'7001004',email:'svc_d@mi.com',postType:'维修中心',postId:'SV004',postName:'质检员',assocType:'按组织ID关联',orgIds:['SR002'],orgNames:['华东维修中心'],status:'启用',updater:'张四（zhangq）',updateTime:'2026-04-20 14:00'},
-  {id:'437005',name:'售后回访虾ε',mid:'7001005',email:'svc_e@mi.com',postType:'服务站',postId:'SV003',postName:'客服专员',postActive:false,assocType:'无需关联',orgIds:[],orgNames:[],status:'禁用',updater:'李五（liw）',updateTime:'2026-04-19 10:30'},
-  {id:'437006',name:'备件仓管虾ζ',mid:'7001006',email:'svc_f@mi.com',postType:'维修中心',postId:'SV002',postName:'配件专员',assocType:'批量关联',orgIds:['SR003'],orgNames:['华南维修中心'],status:'启用',updater:'陈六（chenl）',updateTime:'2026-04-19 09:00'},
-  {id:'437007',name:'上门维修虾η',mid:'7001007',email:'svc_g@mi.com',postType:'服务站',postId:'SV001',postName:'维修技师',assocType:'按组织ID关联',orgIds:['SS004'],orgNames:['小米授权服务站·广州天河'],status:'启用',updater:'王七（wangq）',updateTime:'2026-04-18 16:45'},
-  {id:'437008',name:'保外收费虾θ',mid:'',email:'',postType:'大区',postId:'SV005',postName:'大区服务经理',postActive:false,assocType:'无需关联',orgIds:[],orgNames:[],status:'禁用',updater:'赵八（zhaob）',updateTime:'2026-04-18 09:20'},
-];
-
-const MOCK_DATA_INTL = [
-  {id:'537001',name:'海外运营虾Ⅰ',mid:'6001001',email:'intl_a@mi.com',postType:'国家办事处',postId:'I001',postName:'国家经理',assocType:'按组织ID关联',orgIds:['IO001'],orgNames:['小米印度大区'],status:'启用',updater:'Raj Kumar（raj）',updateTime:'2026-04-22 08:00'},
-  {id:'537002',name:'本地化虾Ⅱ',mid:'6001002',email:'intl_b@mi.com',postType:'海外门店',postId:'I002',postName:'本地化专员',assocType:'批量关联',orgIds:['IM001'],orgNames:['东南亚门店群'],status:'启用',updater:'Anak S.（anak）',updateTime:'2026-04-22 07:30'},
-  {id:'537003',name:'跨境物流虾Ⅲ',mid:'6001003',email:'intl_c@mi.com',postType:'国家办事处',postId:'I003',postName:'物流运营',assocType:'按组织ID关联',orgIds:['IO002','IO003'],orgNames:['小米欧洲大区','小米东南亚大区'],status:'启用',updater:'Ana R.（anar）',updateTime:'2026-04-21 15:00'},
-  {id:'537004',name:'海外财务虾Ⅳ',mid:'6001004',email:'intl_d@mi.com',postType:'海外总部',postId:'I004',postName:'财务BP',postActive:false,assocType:'无需关联',orgIds:[],orgNames:[],status:'禁用',updater:'James L.（jamesl）',updateTime:'2026-04-21 10:00'},
-  {id:'537005',name:'门店运营虾Ⅴ',mid:'6001005',email:'intl_e@mi.com',postType:'海外门店',postId:'I005',postName:'门店经理',assocType:'按组织ID关联',orgIds:['IS001','IS002'],orgNames:['Xiaomi Store Tokyo','Xiaomi Store Osaka'],status:'启用',updater:'Yuki T.（yukit）',updateTime:'2026-04-20 12:00'},
-  {id:'537006',name:'市场推广虾Ⅵ',mid:'6001006',email:'intl_f@mi.com',postType:'国家办事处',postId:'I006',postName:'市场运营',assocType:'批量关联',orgIds:['IO004'],orgNames:['小米中东大区'],status:'启用',updater:'Ali M.（alim）',updateTime:'2026-04-20 09:00'},
-  {id:'537007',name:'合规管理虾Ⅶ',mid:'6001007',email:'intl_g@mi.com',postType:'海外总部',postId:'I007',postName:'合规专员',assocType:'无需关联',orgIds:[],orgNames:[],status:'启用',updater:'Sophie D.（sophied）',updateTime:'2026-04-19 16:00'},
-];
-
-const POST_MAP_BY_DOMAIN = {
-  '3C':{'总部':[{id:'P008',name:'总部运营'},{id:'P009',name:'GPM'}],'分公司':[{id:'P010',name:'省总'},{id:'P007',name:'区域运营'}],'小区':[{id:'P005',name:'小区经理'},{id:'P006',name:'网格经理'}],'网格':[{id:'P006',name:'网格经理'},{id:'P011',name:'网格专员'}],'门店':[{id:'P001',name:'店长'},{id:'P002',name:'店员'},{id:'P003',name:'库管'},{id:'P004',name:'收银员'}]},
-  '汽车':{'大区':[{id:'A007',name:'区域运营经理'}],'交付中心':[{id:'A001',name:'交付专员'},{id:'A004',name:'PDI技师'},{id:'A008',name:'充电运营专员'}],'展厅':[{id:'A002',name:'试驾顾问'},{id:'A005',name:'金融顾问'},{id:'A006',name:'展厅经理'}],'服务中心':[{id:'A003',name:'SA（服务顾问）'},{id:'A008',name:'充电运营专员'}]},
-  '售后':{'大区':[{id:'SV005',name:'大区服务经理'}],'维修中心':[{id:'SV002',name:'配件专员'},{id:'SV004',name:'质检员'}],'服务站':[{id:'SV001',name:'维修技师'},{id:'SV003',name:'客服专员'}]},
-  '国际':{'海外总部':[{id:'I004',name:'财务BP'},{id:'I007',name:'合规专员'}],'国家办事处':[{id:'I001',name:'国家经理'},{id:'I003',name:'物流运营'},{id:'I006',name:'市场运营'}],'海外门店':[{id:'I002',name:'本地化专员'},{id:'I005',name:'门店经理'}]},
+const POST_MAP = {
+  '总部':[{id:'P008',name:'总部运营'},{id:'P009',name:'GPM'}],
+  '分公司':[{id:'P010',name:'省总'},{id:'P007',name:'区域运营'}],
+  '小区':[{id:'P005',name:'小区经理'},{id:'P006',name:'网格经理'}],
+  '网格':[{id:'P006',name:'网格经理'},{id:'P011',name:'网格专员'}],
+  '门店':[{id:'P001',name:'店长'},{id:'P002',name:'店员'},{id:'P003',name:'库管'},{id:'P004',name:'收银员'}],
 };
 
-const ORG_DATA_BY_DOMAIN = {
-  '3C':{'总部':[{id:'HQ001',name:'3C总部'}],'分公司':[{id:'F001',name:'京津分公司'},{id:'F002',name:'浙江分公司'},{id:'F003',name:'广东分公司'},{id:'F004',name:'四川分公司'}],'小区':[{id:'D001',name:'专卖1区'},{id:'D002',name:'专卖2区'},{id:'D003',name:'自营1区'},{id:'D004',name:'自营2区'}],'网格':[{id:'G001',name:'朝阳网格'},{id:'G002',name:'海淀网格'},{id:'G003',name:'丰台网格'},{id:'G004',name:'西城网格'}],'门店':[{id:'S001',name:'小米之家·北京朝阳大悦城店'},{id:'S002',name:'小米之家·上海南京东路店'},{id:'S003',name:'小米之家·杭州西湖银泰店'},{id:'S004',name:'小米之家·深圳华强北店'},{id:'S005',name:'小米之家·广州天河城店'},{id:'S006',name:'小米之家·北京中关村店'}]},
-  '汽车':{'大区':[{id:'ASR001',name:'华中大区'}],'交付中心':[{id:'AC001',name:'小米汽车·北京亦庄交付中心'},{id:'AC002',name:'小米汽车·上海松江交付中心'},{id:'AC003',name:'小米汽车·深圳交付中心'}],'展厅':[{id:'AS001',name:'小米汽车·北京三里屯展厅'},{id:'AS002',name:'小米汽车·上海虹桥展厅'},{id:'AS003',name:'小米汽车·广州天河展厅'}],'服务中心':[{id:'ASC001',name:'华北服务中心'},{id:'ASC002',name:'华东服务中心'},{id:'ASC003',name:'华南服务中心'}]},
-  '售后':{'大区':[{id:'SR001',name:'华北大区'},{id:'SR002',name:'华东大区'},{id:'SR003',name:'华南大区'}],'维修中心':[{id:'SR001',name:'华北维修中心'},{id:'SR002',name:'华东维修中心'},{id:'SR003',name:'华南维修中心'}],'服务站':[{id:'SS001',name:'小米授权服务站·北京望京'},{id:'SS002',name:'小米授权服务站·上海徐汇'},{id:'SS003',name:'小米授权服务站·上海浦东'},{id:'SS004',name:'小米授权服务站·广州天河'}]},
-  '国际':{'海外总部':[{id:'IHQ001',name:'国际业务总部'}],'国家办事处':[{id:'IO001',name:'小米印度大区'},{id:'IO002',name:'小米欧洲大区'},{id:'IO003',name:'小米东南亚大区'},{id:'IO004',name:'小米中东大区'}],'海外门店':[{id:'IS001',name:'Xiaomi Store Tokyo'},{id:'IS002',name:'Xiaomi Store Osaka'},{id:'IS003',name:'Xiaomi Store Singapore'},{id:'IM001',name:'东南亚门店群'}]},
+const LEVEL_HIERARCHY = ['总部','分公司','小区','网格','门店'];
+
+const ORG_DATA = {
+  '总部':[{id:'HQ001',name:'3C总部'},{id:'HQ002',name:'汽车总部'}],
+  '分公司':[{id:'F001',name:'京津分公司'},{id:'F002',name:'浙江分公司'},{id:'F003',name:'广东分公司'},{id:'F004',name:'四川分公司'}],
+  '小区':[{id:'D001',name:'专卖1区'},{id:'D002',name:'专卖2区'},{id:'D003',name:'自营1区'},{id:'D004',name:'自营2区'}],
+  '网格':[{id:'G001',name:'朝阳网格'},{id:'G002',name:'海淀网格'},{id:'G003',name:'丰台网格'},{id:'G004',name:'西城网格'}],
+  '门店':[{id:'S001',name:'小米之家·北京朝阳大悦城店'},{id:'S002',name:'小米之家·上海南京东路店'},{id:'S003',name:'小米之家·杭州西湖银泰店'},{id:'S004',name:'小米之家·深圳华强北店'},{id:'S005',name:'小米之家·广州天河城店'},{id:'S006',name:'小米之家·北京中关村店'}],
 };
 
-let currentDomain = '3C';
-function getCurrentData() {
-  return {'3C':MOCK_DATA_3C,'汽车':MOCK_DATA_AUTO,'售后':MOCK_DATA_SERVICE,'国际':MOCK_DATA_INTL}[currentDomain] || MOCK_DATA_3C;
-}
-function getCurrentPostMap() { return POST_MAP_BY_DOMAIN[currentDomain] || POST_MAP_BY_DOMAIN['3C']; }
-function getCurrentOrgData() { return ORG_DATA_BY_DOMAIN[currentDomain] || ORG_DATA_BY_DOMAIN['3C']; }
-
-let POST_MAP = POST_MAP_BY_DOMAIN['3C'];
-const LEVEL_HIERARCHY = ['总部','分公司','大区','小区','网格','门店','交付中心','展厅','服务中心','维修中心','服务站','国家办事处','海外门店','海外总部'];
-let ORG_DATA = ORG_DATA_BY_DOMAIN['3C'];
-
-let filteredData = [...getCurrentData()].sort((a,b) => b.updateTime.localeCompare(a.updateTime));
+let filteredData = [...MOCK_DATA].sort((a,b) => b.updateTime.localeCompare(a.updateTime));
 let currentPage = 1;
 const pageSize = 10;
 let modalCallback = null;
 let postCardCounter = {add:0,edit:0};
+
 // ===== PAGE NAVIGATION =====
 function showPage(page) {
   ['list','add','edit','view'].forEach(p => {
@@ -668,27 +629,6 @@ function showPage(page) {
 function switchDomain(el) {
   document.querySelectorAll('.header-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  currentDomain = el.textContent.trim();
-  POST_MAP = getCurrentPostMap();
-  ORG_DATA = getCurrentOrgData();
-  repopulateFilterSelects();
-  doReset();
-}
-
-function repopulateFilterSelects() {
-  const postSel = document.getElementById('f-postId');
-  const orgSel = document.getElementById('f-orgId');
-  // reset
-  postSel.innerHTML = '<option value="">全部</option>';
-  orgSel.innerHTML = '<option value="">全部</option>';
-  const allPosts = new Map();
-  const allOrgs = new Map();
-  getCurrentData().forEach(d => {
-    allPosts.set(d.postId, d.postId+' - '+d.postName);
-    d.orgIds.forEach((oid,i) => allOrgs.set(oid, oid+' - '+d.orgNames[i]));
-  });
-  allPosts.forEach((v,k) => { const o=document.createElement('option'); o.value=k; o.textContent=v; postSel.appendChild(o); });
-  allOrgs.forEach((v,k) => { const o=document.createElement('option'); o.value=k; o.textContent=v; orgSel.appendChild(o); });
 }
 
 // ===== LIST PAGE =====
@@ -747,7 +687,7 @@ function doSearch() {
 
   const fLobsterStatus = document.getElementById('f-lobsterStatus').value;
   const fPostStatus = document.getElementById('f-postStatus').value;
-  filteredData = getCurrentData().filter(d => {
+  filteredData = MOCK_DATA.filter(d => {
     if(fId && !d.id.includes(fId) && !d.name.includes(fId)) return false;
     if(fMid && !(d.mid||'').includes(fMid) && !(d.email||'').includes(fMid)) return false;
     if(fLobsterStatus && d.status !== fLobsterStatus) return false;
@@ -769,7 +709,7 @@ function doSearch() {
 function doReset() {
   ['f-lobsterId','f-mid'].forEach(id=>document.getElementById(id).value='');
   ['f-lobsterStatus','f-postType','f-assocType','f-postId','f-postStatus','f-orgId'].forEach(id=>document.getElementById(id).selectedIndex=0);
-  filteredData = [...getCurrentData()].sort((a,b) => b.updateTime.localeCompare(a.updateTime));
+  filteredData = [...MOCK_DATA].sort((a,b) => b.updateTime.localeCompare(a.updateTime));
   currentPage = 1;
   renderTable();
 }
@@ -779,7 +719,7 @@ function populateFilterSelects() {
   const orgSel = document.getElementById('f-orgId');
   const allPosts = new Map();
   const allOrgs = new Map();
-  getCurrentData().forEach(d => {
+  MOCK_DATA.forEach(d => {
     allPosts.set(d.postId, d.postId+' - '+d.postName);
     d.orgIds.forEach((oid,i) => allOrgs.set(oid, oid+' - '+d.orgNames[i]));
   });
@@ -789,7 +729,7 @@ function populateFilterSelects() {
 
 // ===== TOGGLE STATUS =====
 function doToggle(id) {
-  const item = getCurrentData().find(d=>d.id===id);
+  const item = MOCK_DATA.find(d=>d.id===id);
   if(!item) return;
   const isEnable = item.status==='禁用';
   let body = '';
