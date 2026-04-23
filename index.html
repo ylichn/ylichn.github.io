@@ -314,7 +314,7 @@ table tbody tr{transition:background .15s;}
         <thead>
           <tr>
             <th>龙虾ID</th><th>龙虾名称</th><th>mid</th><th>邮箱</th><th>岗位名称</th>
-            <th>组织关联方式</th><th>状态</th>
+            <th>岗位状态</th><th>组织关联方式</th><th>状态</th>
             <th>最后更新人</th><th>最后更新时间</th><th style="min-width:140px;">操作</th>
           </tr>
         </thead>
@@ -642,6 +642,7 @@ function renderTable() {
       <td>${d.mid||'-'}</td>
       <td>${d.email||'-'}</td>
       <td><span style="${postNameColor}">${d.postName}</span></td>
+      <td><span class="tag ${d.postActive!==false?'tag-green':'tag-gray'}">${d.postActive!==false?'有效':'无效'}</span></td>
       <td>${d.assocType||'按组织ID关联'}</td>
       <td><span class="tag ${d.status==='启用'?'tag-green':'tag-gray'}">${d.status}</span></td>
       <td style="white-space:nowrap;">${d.updater}</td>
