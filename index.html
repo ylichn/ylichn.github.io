@@ -201,6 +201,20 @@ table tbody tr{transition:background .15s;}
 /* ===== Channel Field ===== */
 .channel-row{margin-top:8px;}
 .loading-dot{width:8px;height:8px;background:var(--primary);border-radius:50%;display:inline-block;animation:pulse 1s infinite;}@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* ===== Org Select Modal ===== */
+.org-modal{width:1060px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;}
+.org-modal .modal-body{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:16px 22px;}
+.org-modal-filters{display:flex;flex-wrap:wrap;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--border-light);align-items:flex-end;}
+.org-modal-filters .filter-item{min-width:auto;}
+.org-modal-filters .filter-item input,.org-modal-filters .filter-item select{min-width:130px;height:32px;font-size:12px;}
+.org-modal-filters .filter-item label{font-size:11px;}
+.org-modal-table-wrap{flex:1;overflow:auto;margin-top:12px;border:1px solid var(--border-light);border-radius:8px;}
+.org-modal-table-wrap table{font-size:12px;}
+.org-modal-table-wrap th{height:36px;padding:0 10px;font-size:11px;position:sticky;top:0;z-index:1;}
+.org-modal-table-wrap td{padding:6px 10px;font-size:12px;}
+.org-modal-table-wrap td:first-child,.org-modal-table-wrap th:first-child{width:40px;text-align:center;}
+.org-modal-info{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--text-sub);}
 </style>
 </head>
 <body>
@@ -558,6 +572,33 @@ table tbody tr{transition:background .15s;}
     </div>
   </div>
 </div>
+<!-- ==================== ORG SELECT MODAL ==================== -->
+<div class="modal-overlay" id="org-modal-overlay" onclick="if(event.target===this)closeOrgModal()">
+  <div class="modal org-modal">
+    <div class="modal-header">
+      <span id="org-modal-title">请选择组织</span>
+      <span class="modal-close" onclick="closeOrgModal()">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="org-modal-filters" id="org-modal-filters"></div>
+      <div class="org-modal-table-wrap">
+        <table>
+          <thead id="org-modal-thead"></thead>
+          <tbody id="org-modal-tbody"></tbody>
+        </table>
+      </div>
+      <div class="org-modal-info">
+        <span id="org-modal-count">共 0 条</span>
+        <span id="org-modal-selected">已选 0 项</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeOrgModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmOrgSelect()">确认选择</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- /scroll-content -->
 
 <script>
@@ -939,18 +980,39 @@ function onAssocTypeChange(cardId) {
   const postType = document.getElementById(cardId+'-type')?.value || '';
 
   if(assocType === 'byId') {
-    const orgs = postType ? (ORG_DATA[postType]||[]) : [];
-    assocArea.innerHTML = `
-      <div class="org-assoc-title">按组织ID关联</div>
-      <div class="form-group" style="max-width:600px;">
-        <label>组织ID/名称（可多选）</label>
-        <select id="${cardId}-org-select" multiple style="height:auto;min-height:32px;padding:4px;" onchange="updateOrgTags('${cardId}')">
-          ${orgs.map(o=>`<option value="${o.id}">${o.id} - ${o.name}</option>`).join('')}
-        </select>
-        <div class="multi-tags" id="${cardId}-org-tags"></div>
-        ${!postType?'<div class="hint">请先选择岗位类型</div>':''}
-      </div>
-    `;
+    const postEl = document.getElementById(cardId+'-post');
+    const postNameText = postEl ? (postEl.selectedOptions[0]?.textContent?.split(' - ')[1] || '') : '';
+    if(postType === '总部') {
+      assocArea.innerHTML = `
+        <div style="margin:12px 0;padding:10px 14px;background:linear-gradient(135deg,#EEF0FF,#F0F7FF);border-left:3px solid #6366F1;border-radius:0 6px 6px 0;font-size:13px;color:#1F2733;line-height:1.6;">
+          总部岗位无需选择组织ID，默认该领域 <strong>${postNameText||'所选岗位'}</strong> 都可用
+        </div>
+      `;
+    } else if(!postType) {
+      assocArea.innerHTML = `
+        <div class="org-assoc-title">按组织ID关联</div>
+        <div class="hint" style="padding:8px 0;">请先选择岗位类型</div>
+      `;
+    } else {
+      // Reset org selection state for this card
+      if(!orgSelectStates[cardId]) orgSelectStates[cardId] = new Map();
+      const existingSel = orgSelectStates[cardId];
+      const tagsHTML = existingSel.size > 0 ? Array.from(existingSel.values()).map(o=>`<span class="multi-tag">${o.id} - ${o.name}<span class="remove" onclick="removeOrgTag('${cardId}','${o.id}')">×</span></span>`).join('') : '';
+      const placeholderStyle = existingSel.size > 0 ? 'display:none;' : '';
+      assocArea.innerHTML = `
+        <div class="org-assoc-title">按组织ID关联</div>
+        <div class="form-group" style="max-width:700px;">
+          <label>组织ID/名称</label>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="flex:1;min-height:36px;border:1px solid var(--border);border-radius:8px;padding:4px 10px;background:#fff;display:flex;flex-wrap:wrap;gap:4px;align-items:center;cursor:pointer;" id="${cardId}-org-display" onclick="openOrgSelectModal('${cardId}')">
+              <span style="color:var(--text-disabled);font-size:13px;${placeholderStyle}" id="${cardId}-org-placeholder">请点击右侧按钮选择组织</span>
+            </div>
+            <button class="btn btn-primary" style="height:36px;white-space:nowrap;flex-shrink:0;" onclick="openOrgSelectModal('${cardId}')">展开选择</button>
+          </div>
+          <div class="multi-tags" id="${cardId}-org-tags" style="margin-top:6px;">${tagsHTML}</div>
+        </div>
+      `;
+    }
   } else if(assocType === 'batch') {
     const lvlIdx = LEVEL_HIERARCHY.indexOf(postType);
     const availLevels = lvlIdx > 0 ? LEVEL_HIERARCHY.slice(0, lvlIdx) : [];
@@ -1429,6 +1491,277 @@ function validateEmail(prefix) {
     warn.style.display='block'; return;
   }
   warn.style.display='none';
+}
+
+// ===== ORG SELECT CONFIG (domain × level) =====
+const ORG_SELECT_CONFIG = {
+  '3C': {
+    '分公司': {
+      filters: [{key:'name',label:'分公司',type:'input'},{key:'enabled',label:'是否启用',type:'select',options:['全部','是','否']}],
+      columns: [{key:'id',label:'分公司ID'},{key:'code',label:'区域代码'},{key:'name',label:'分公司名称'},{key:'province',label:'管辖省份'},{key:'enabled',label:'是否启用'}],
+      data: [
+        {id:'F001',code:'BJ',name:'京津分公司',province:'北京/天津',enabled:'是'},
+        {id:'F002',code:'ZJ',name:'浙江分公司',province:'浙江',enabled:'是'},
+        {id:'F003',code:'GD',name:'广东分公司',province:'广东',enabled:'是'},
+        {id:'F004',code:'SC',name:'四川分公司',province:'四川/重庆',enabled:'是'},
+        {id:'F005',code:'HB',name:'湖北分公司',province:'湖北',enabled:'否'},
+      ]
+    },
+    '小区': {
+      filters: [{key:'company',label:'分公司',type:'select',options:['全部','京津分公司','浙江分公司','广东分公司','四川分公司']},{key:'channel',label:'渠道',type:'select',options:['全部','专卖','自营','授权']},{key:'province',label:'省份',type:'input'},{key:'city',label:'城市',type:'input'},{key:'enabled',label:'是否启用',type:'select',options:['全部','是','否']},{key:'nameId',label:'小区名称/ID',type:'input'},{key:'pioneer',label:'是否先锋小区',type:'select',options:['全部','是','否']}],
+      columns: [{key:'id',label:'小区ID'},{key:'name',label:'小区名称'},{key:'company',label:'分公司'},{key:'channel',label:'渠道'},{key:'province',label:'省份'},{key:'city',label:'城市'},{key:'enabled',label:'是否启用'},{key:'pioneer',label:'是否先锋小区'}],
+      data: [
+        {id:'D001',name:'专卖1区',company:'京津分公司',channel:'专卖',province:'北京',city:'北京',enabled:'是',pioneer:'否'},
+        {id:'D002',name:'专卖2区',company:'京津分公司',channel:'专卖',province:'北京',city:'北京',enabled:'是',pioneer:'是'},
+        {id:'D003',name:'自营1区',company:'京津分公司',channel:'自营',province:'北京',city:'北京',enabled:'是',pioneer:'否'},
+        {id:'D004',name:'授权1区',company:'浙江分公司',channel:'授权',province:'浙江',city:'杭州',enabled:'是',pioneer:'否'},
+        {id:'D005',name:'专卖3区',company:'广东分公司',channel:'专卖',province:'广东',city:'广州',enabled:'否',pioneer:'否'},
+      ]
+    },
+    '网格': {
+      filters: [{key:'company',label:'分公司',type:'select',options:['全部','京津分公司','浙江分公司','广东分公司']},{key:'province',label:'省份',type:'input'},{key:'city',label:'城市',type:'input'},{key:'area',label:'小区',type:'select',options:['全部','专卖1区','专卖2区','自营1区','授权1区']},{key:'enabled',label:'是否启用',type:'select',options:['全部','是','否']},{key:'nameId',label:'网格名称/ID',type:'input'},{key:'pioneer',label:'是否先锋网格',type:'select',options:['全部','是','否']},{key:'channel',label:'渠道',type:'select',options:['全部','专卖','自营','授权']}],
+      columns: [{key:'id',label:'网格ID'},{key:'name',label:'网格名称'},{key:'company',label:'分公司'},{key:'province',label:'省份'},{key:'city',label:'城市'},{key:'area',label:'小区名称'},{key:'pioneer',label:'是否先锋小区'},{key:'enabled',label:'是否启用'}],
+      data: [
+        {id:'G001',name:'朝阳网格',company:'京津分公司',province:'北京',city:'北京',area:'专卖1区',pioneer:'否',enabled:'是'},
+        {id:'G002',name:'海淀网格',company:'京津分公司',province:'北京',city:'北京',area:'专卖1区',pioneer:'是',enabled:'是'},
+        {id:'G003',name:'丰台网格',company:'京津分公司',province:'北京',city:'北京',area:'专卖2区',pioneer:'否',enabled:'是'},
+        {id:'G004',name:'西城网格',company:'京津分公司',province:'北京',city:'北京',area:'自营1区',pioneer:'否',enabled:'否'},
+        {id:'G005',name:'西湖网格',company:'浙江分公司',province:'浙江',city:'杭州',area:'授权1区',pioneer:'否',enabled:'是'},
+      ]
+    },
+    '门店': {
+      filters: [{key:'province',label:'省份',type:'input'},{key:'city',label:'城市',type:'input'},{key:'county',label:'区县',type:'input'},{key:'storeType',label:'门店类型',type:'select',options:['全部','旗舰店','标准店','授权店','小店']},{key:'status',label:'门店状态',type:'select',options:['全部','营业中','装修中','已关闭']},{key:'nameId',label:'门店',type:'input'},{key:'pioneer',label:'是否先锋店',type:'select',options:['全部','是','否']}],
+      columns: [{key:'id',label:'门店ID'},{key:'name',label:'门店名称'},{key:'storeType',label:'门店类型'},{key:'company',label:'分公司'},{key:'area',label:'小区名称'},{key:'grid',label:'网格名称'},{key:'partner',label:'合作商名称'},{key:'province',label:'省'},{key:'city',label:'城市'},{key:'county',label:'县级'},{key:'status',label:'门店状态'}],
+      data: [
+        {id:'S001',name:'小米之家·北京朝阳大悦城店',storeType:'旗舰店',company:'京津分公司',area:'专卖1区',grid:'朝阳网格',partner:'自营',province:'北京',city:'北京',county:'朝阳区',status:'营业中'},
+        {id:'S002',name:'小米之家·上海南京东路店',storeType:'旗舰店',company:'浙江分公司',area:'自营1区',grid:'浦东网格',partner:'自营',province:'上海',city:'上海',county:'黄浦区',status:'营业中'},
+        {id:'S003',name:'小米之家·杭州西湖银泰店',storeType:'标准店',company:'浙江分公司',area:'授权1区',grid:'西湖网格',partner:'银泰集团',province:'浙江',city:'杭州',county:'上城区',status:'营业中'},
+        {id:'S004',name:'小米之家·深圳华强北店',storeType:'标准店',company:'广东分公司',area:'专卖3区',grid:'福田网格',partner:'自营',province:'广东',city:'深圳',county:'福田区',status:'营业中'},
+        {id:'S005',name:'小米之家·广州天河城店',storeType:'授权店',company:'广东分公司',area:'专卖3区',grid:'天河网格',partner:'天河城集团',province:'广东',city:'广州',county:'天河区',status:'营业中'},
+        {id:'S006',name:'小米之家·北京中关村店',storeType:'标准店',company:'京津分公司',area:'专卖1区',grid:'海淀网格',partner:'自营',province:'北京',city:'北京',county:'海淀区',status:'装修中'},
+      ]
+    }
+  },
+  '汽车': {
+    '分公司': {
+      filters: [{key:'province',label:'省份',type:'input'},{key:'city',label:'城市',type:'input'},{key:'enabled',label:'状态',type:'select',options:['全部','是','否']},{key:'nameId',label:'区域名称/区域ID',type:'input'}],
+      columns: [{key:'id',label:'区域ID'},{key:'name',label:'区域名称'},{key:'province',label:'省'},{key:'city',label:'城市'},{key:'enabled',label:'是否启用'}],
+      data: [
+        {id:'AR001',name:'华北大区',province:'北京',city:'北京',enabled:'是'},
+        {id:'AR002',name:'华东大区',province:'上海',city:'上海',enabled:'是'},
+        {id:'AR003',name:'华南大区',province:'广东',city:'广州',enabled:'是'},
+        {id:'AR004',name:'西南大区',province:'四川',city:'成都',enabled:'是'},
+        {id:'AR005',name:'东北大区',province:'辽宁',city:'沈阳',enabled:'否'},
+      ]
+    },
+    '小区': {
+      filters: [{key:'province',label:'省份',type:'input'},{key:'city',label:'城市',type:'input'},{key:'enabled',label:'状态',type:'select',options:['全部','是','否']},{key:'regionId',label:'区域名称/区域ID',type:'input'},{key:'nameId',label:'小区名称/ID',type:'input'}],
+      columns: [{key:'id',label:'小区ID'},{key:'name',label:'小区名称'},{key:'region',label:'所属区域'},{key:'province',label:'省'},{key:'city',label:'城市'},{key:'county',label:'区县'},{key:'enabled',label:'是否启用'}],
+      data: [
+        {id:'AC001',name:'北京城市零售中心',region:'华北大区',province:'北京',city:'北京',county:'朝阳区',enabled:'是'},
+        {id:'AC002',name:'上海城市零售中心',region:'华东大区',province:'上海',city:'上海',county:'浦东新区',enabled:'是'},
+        {id:'AC003',name:'广州城市零售中心',region:'华南大区',province:'广东',city:'广州',county:'天河区',enabled:'是'},
+        {id:'AC004',name:'成都交付小区',region:'西南大区',province:'四川',city:'成都',county:'高新区',enabled:'是'},
+      ]
+    },
+    '网格': {
+      filters: [{key:'province',label:'省份',type:'input'},{key:'city',label:'城市',type:'input'},{key:'enabled',label:'状态',type:'select',options:['全部','是','否']},{key:'regionId',label:'区域名称/区域ID',type:'input'},{key:'areaId',label:'小区名称/ID',type:'input'},{key:'nameId',label:'城市名称/ID',type:'input'}],
+      columns: [{key:'id',label:'城市ID'},{key:'name',label:'城市名称'},{key:'area',label:'所属小区'},{key:'region',label:'所属区域'},{key:'province',label:'省'},{key:'city',label:'城市'},{key:'county',label:'区县'},{key:'enabled',label:'是否启用'}],
+      data: [
+        {id:'CT001',name:'北京交付城市',area:'北京城市零售中心',region:'华北大区',province:'北京',city:'北京',county:'朝阳区',enabled:'是'},
+        {id:'CT002',name:'上海交付城市',area:'上海城市零售中心',region:'华东大区',province:'上海',city:'上海',county:'浦东新区',enabled:'是'},
+        {id:'CT003',name:'广州交付城市',area:'广州城市零售中心',region:'华南大区',province:'广东',city:'广州',county:'天河区',enabled:'是'},
+      ]
+    },
+    '门店': {
+      filters: [{key:'province',label:'省份',type:'input'},{key:'city',label:'城市',type:'input'},{key:'county',label:'区县',type:'input'},{key:'channel',label:'管理渠道',type:'select',options:['全部','销售','交付','服务']},{key:'status',label:'门店状态',type:'select',options:['全部','营业中','装修中','已关闭']},{key:'nameId',label:'门店名称',type:'input'},{key:'region',label:'所属大区',type:'select',options:['全部','华北大区','华东大区','华南大区','西南大区']},{key:'cityCenter',label:'所属城市',type:'input'}],
+      columns: [{key:'id',label:'门店ID'},{key:'name',label:'门店名称'},{key:'channel',label:'管理渠道'},{key:'cityCenter',label:'所属城市'},{key:'partner',label:'合作商名称'},{key:'province',label:'省'},{key:'city',label:'城市'},{key:'county',label:'县级'},{key:'status',label:'门店状态'}],
+      data: [
+        {id:'AS001',name:'小米汽车·北京亦庄交付中心',channel:'交付',cityCenter:'北京交付城市',partner:'自营',province:'北京',city:'北京',county:'大兴区',status:'营业中'},
+        {id:'AS002',name:'小米汽车·北京金港体验店',channel:'销售',cityCenter:'北京城市零售中心',partner:'自营',province:'北京',city:'北京',county:'顺义区',status:'营业中'},
+        {id:'AS003',name:'小米汽车·上海虹桥服务中心',channel:'服务',cityCenter:'上海城市零售中心',partner:'自营',province:'上海',city:'上海',county:'闵行区',status:'营业中'},
+        {id:'AS004',name:'小米汽车·广州天河展厅',channel:'销售',cityCenter:'广州城市零售中心',partner:'自营',province:'广东',city:'广州',county:'天河区',status:'营业中'},
+        {id:'AS005',name:'小米汽车·成都天府交付中心',channel:'交付',cityCenter:'成都交付小区',partner:'自营',province:'四川',city:'成都',county:'天府新区',status:'装修中'},
+      ]
+    }
+  },
+  '售后': {
+    '分公司': {
+      filters: [{key:'name',label:'分公司',type:'input'},{key:'enabled',label:'是否启用',type:'select',options:['全部','是','否']}],
+      columns: [{key:'id',label:'分公司ID'},{key:'code',label:'区域代码'},{key:'name',label:'分公司名称'},{key:'province',label:'管辖省份'},{key:'enabled',label:'是否启用'}],
+      data: [
+        {id:'SF001',code:'BJ',name:'北京售后分公司',province:'北京/天津',enabled:'是'},
+        {id:'SF002',code:'SH',name:'上海售后分公司',province:'上海',enabled:'是'},
+        {id:'SF003',code:'GZ',name:'广州售后分公司',province:'广东',enabled:'是'},
+        {id:'SF004',code:'CD',name:'成都售后分公司',province:'四川/重庆',enabled:'是'},
+      ]
+    },
+    '小区': {
+      filters: [{key:'id',label:'门店ID',type:'input'},{key:'name',label:'门店名称',type:'input'},{key:'company',label:'所属分公司',type:'select',options:['全部','北京售后分公司','上海售后分公司','广州售后分公司','成都售后分公司']},{key:'status',label:'门店状态',type:'select',options:['全部','营业中','暂停','已关闭']}],
+      columns: [{key:'id',label:'门店ID'},{key:'name',label:'门店名称'},{key:'status',label:'门店状态'},{key:'channel',label:'管理渠道'},{key:'company',label:'所属分公司'}],
+      data: [
+        {id:'SS001',name:'小米售后·北京朝阳服务站',status:'营业中',channel:'送修',company:'北京售后分公司'},
+        {id:'SS002',name:'小米售后·北京海淀上门网点',status:'营业中',channel:'上门',company:'北京售后分公司'},
+        {id:'SS003',name:'小米售后·上海浦东寄修中心',status:'营业中',channel:'寄修',company:'上海售后分公司'},
+        {id:'SS004',name:'小米售后·广州天河维修中心',status:'营业中',channel:'送修',company:'广州售后分公司'},
+        {id:'SS005',name:'小米售后·成都高新逆向处置中心',status:'营业中',channel:'逆向处置',company:'成都售后分公司'},
+        {id:'SS006',name:'小米售后·北京大兴修整工厂',status:'营业中',channel:'修整工厂',company:'北京售后分公司'},
+      ]
+    },
+    '网格': {
+      filters: [{key:'id',label:'门店ID',type:'input'},{key:'name',label:'门店名称',type:'input'},{key:'company',label:'所属分公司',type:'select',options:['全部','北京售后分公司','上海售后分公司','广州售后分公司','成都售后分公司']},{key:'status',label:'门店状态',type:'select',options:['全部','营业中','暂停','已关闭']}],
+      columns: [{key:'id',label:'门店ID'},{key:'name',label:'门店名称'},{key:'status',label:'门店状态'},{key:'channel',label:'管理渠道'},{key:'company',label:'所属分公司'}],
+      data: [
+        {id:'SS001',name:'小米售后·北京朝阳服务站',status:'营业中',channel:'送修',company:'北京售后分公司'},
+        {id:'SS002',name:'小米售后·北京海淀上门网点',status:'营业中',channel:'上门',company:'北京售后分公司'},
+        {id:'SS003',name:'小米售后·上海浦东寄修中心',status:'营业中',channel:'寄修',company:'上海售后分公司'},
+        {id:'SS004',name:'小米售后·广州天河维修中心',status:'营业中',channel:'送修',company:'广州售后分公司'},
+      ]
+    },
+    '门店': {
+      filters: [{key:'id',label:'门店ID',type:'input'},{key:'name',label:'门店名称',type:'input'},{key:'company',label:'所属分公司',type:'select',options:['全部','北京售后分公司','上海售后分公司','广州售后分公司','成都售后分公司']},{key:'status',label:'门店状态',type:'select',options:['全部','营业中','暂停','已关闭']}],
+      columns: [{key:'id',label:'门店ID'},{key:'name',label:'门店名称'},{key:'status',label:'门店状态'},{key:'channel',label:'管理渠道'},{key:'company',label:'所属分公司'}],
+      data: [
+        {id:'SS001',name:'小米售后·北京朝阳服务站',status:'营业中',channel:'送修',company:'北京售后分公司'},
+        {id:'SS002',name:'小米售后·北京海淀上门网点',status:'营业中',channel:'上门',company:'北京售后分公司'},
+        {id:'SS003',name:'小米售后·上海浦东寄修中心',status:'营业中',channel:'寄修',company:'上海售后分公司'},
+        {id:'SS004',name:'小米售后·广州天河维修中心',status:'营业中',channel:'送修',company:'广州售后分公司'},
+        {id:'SS005',name:'小米售后·成都高新逆向处置中心',status:'营业中',channel:'逆向处置',company:'成都售后分公司'},
+        {id:'SS006',name:'小米售后·北京大兴修整工厂',status:'营业中',channel:'修整工厂',company:'北京售后分公司'},
+      ]
+    }
+  }
+};
+
+// ===== ORG SELECT MODAL STATE =====
+let orgSelectStates = {}; // cardId -> Map(id -> {id, name})
+let orgSelectCurrentCard = null;
+let orgSelectCurrentConfig = null;
+
+function openOrgSelectModal(cardId) {
+  const postType = document.getElementById(cardId+'-type')?.value || '';
+  const domain = document.querySelector('.header-tab.active')?.textContent?.trim() || '3C';
+  const config = (ORG_SELECT_CONFIG[domain]||{})[postType];
+  if(!config) { showToast('暂无该层级的组织数据配置'); return; }
+  orgSelectCurrentCard = cardId;
+  orgSelectCurrentConfig = config;
+  if(!orgSelectStates[cardId]) orgSelectStates[cardId] = new Map();
+  renderOrgSelectModal(config);
+  document.getElementById('org-modal-overlay').classList.add('show');
+  document.getElementById('org-modal-title').textContent = '请选择' + postType + '组织';
+}
+
+function renderOrgSelectModal(config) {
+  const filtersEl = document.getElementById('org-modal-filters');
+  filtersEl.innerHTML = config.filters.map(f => {
+    if(f.type === 'select') {
+      return '<div class="filter-item"><label>'+f.label+'</label><select id="org-f-'+f.key+'" onchange="filterOrgTable()">'+f.options.map(o=>'<option'+(o===f.options[0]?' value=""':'')+'>'+o+'</option>').join('')+'</select></div>';
+    }
+    return '<div class="filter-item"><label>'+f.label+'</label><input type="text" id="org-f-'+f.key+'" placeholder="请输入" onkeydown="if(event.key===\'Enter\')filterOrgTable()"></div>';
+  }).join('') + '<div class="filter-item" style="align-self:flex-end;display:flex;gap:6px;"><button class="btn btn-primary" style="height:32px;font-size:12px;" onclick="filterOrgTable()">查询</button><button class="btn btn-default" style="height:32px;font-size:12px;" onclick="resetOrgFilter()">重置</button></div>';
+  renderOrgTable(config.data);
+}
+
+function renderOrgTable(data) {
+  const config = orgSelectCurrentConfig;
+  const sel = orgSelectStates[orgSelectCurrentCard] || new Map();
+  document.getElementById('org-modal-thead').innerHTML = '<tr><th><input type="checkbox" onchange="toggleOrgSelectAll(this)" id="org-check-all"></th>'+config.columns.map(c=>'<th>'+c.label+'</th>').join('')+'</tr>';
+  document.getElementById('org-modal-tbody').innerHTML = data.map(row => {
+    const checked = sel.has(row.id) ? 'checked' : '';
+    return '<tr style="cursor:pointer;" onclick="toggleOrgRow(this)"><td><input type="checkbox" value="'+row.id+'" data-name="'+(row.name||row.id)+'" '+checked+' onchange="onOrgRowCheck(this)" onclick="event.stopPropagation()"></td>'+config.columns.map(c=>'<td>'+(row[c.key]||'-')+'</td>').join('')+'</tr>';
+  }).join('');
+  document.getElementById('org-modal-count').textContent = '共 '+data.length+' 条';
+  updateOrgSelectedCount();
+}
+
+function filterOrgTable() {
+  const config = orgSelectCurrentConfig;
+  let filtered = [...config.data];
+  config.filters.forEach(f => {
+    const el = document.getElementById('org-f-'+f.key);
+    if(!el) return;
+    const val = el.value.trim();
+    if(!val || val === '全部') return;
+    filtered = filtered.filter(row => {
+      if(f.type === 'select') return (row[f.key]||'') === val;
+      const s = (row.id+' '+row.name+' '+(row[f.key]||'')).toLowerCase();
+      return s.includes(val.toLowerCase());
+    });
+  });
+  renderOrgTable(filtered);
+}
+
+function resetOrgFilter() {
+  orgSelectCurrentConfig.filters.forEach(f => {
+    const el = document.getElementById('org-f-'+f.key);
+    if(el) { if(el.tagName==='SELECT') el.selectedIndex=0; else el.value=''; }
+  });
+  renderOrgTable(orgSelectCurrentConfig.data);
+}
+
+function toggleOrgRow(tr) {
+  const cb = tr.querySelector('input[type=checkbox]');
+  if(cb) { cb.checked = !cb.checked; onOrgRowCheck(cb); }
+}
+
+function toggleOrgSelectAll(checkbox) {
+  const sel = orgSelectStates[orgSelectCurrentCard];
+  document.querySelectorAll('#org-modal-tbody input[type=checkbox]').forEach(cb => {
+    cb.checked = checkbox.checked;
+    if(checkbox.checked) sel.set(cb.value,{id:cb.value,name:cb.dataset.name});
+    else sel.delete(cb.value);
+  });
+  updateOrgSelectedCount();
+}
+
+function onOrgRowCheck(cb) {
+  const sel = orgSelectStates[orgSelectCurrentCard];
+  if(cb.checked) sel.set(cb.value,{id:cb.value,name:cb.dataset.name});
+  else { sel.delete(cb.value); document.getElementById('org-check-all').checked=false; }
+  updateOrgSelectedCount();
+}
+
+function updateOrgSelectedCount() {
+  const sel = orgSelectStates[orgSelectCurrentCard] || new Map();
+  document.getElementById('org-modal-selected').textContent = '已选 '+sel.size+' 项';
+}
+
+function confirmOrgSelect() {
+  const cardId = orgSelectCurrentCard;
+  if(!cardId) return;
+  const sel = orgSelectStates[cardId];
+  const tagsEl = document.getElementById(cardId+'-org-tags');
+  const placeholder = document.getElementById(cardId+'-org-placeholder');
+  if(sel && sel.size > 0) {
+    if(placeholder) placeholder.style.display = 'none';
+    tagsEl.innerHTML = Array.from(sel.values()).map(o =>
+      '<span class="multi-tag">'+o.id+' - '+o.name+'<span class="remove" onclick="removeOrgTag(\''+cardId+'\',\''+o.id+'\')">&times;</span></span>'
+    ).join('');
+  } else {
+    if(placeholder) placeholder.style.display = 'inline';
+    tagsEl.innerHTML = '';
+  }
+  closeOrgModal();
+  showToast('已选择 '+(sel?sel.size:0)+' 个组织');
+}
+
+function removeOrgTag(cardId, orgId) {
+  const sel = orgSelectStates[cardId];
+  if(sel) sel.delete(orgId);
+  const tagsEl = document.getElementById(cardId+'-org-tags');
+  const placeholder = document.getElementById(cardId+'-org-placeholder');
+  if(sel && sel.size > 0) {
+    tagsEl.innerHTML = Array.from(sel.values()).map(o =>
+      '<span class="multi-tag">'+o.id+' - '+o.name+'<span class="remove" onclick="removeOrgTag(\''+cardId+'\',\''+o.id+'\')">&times;</span></span>'
+    ).join('');
+  } else {
+    if(placeholder) placeholder.style.display = 'inline';
+    tagsEl.innerHTML = '';
+  }
+}
+
+function closeOrgModal() {
+  document.getElementById('org-modal-overlay').classList.remove('show');
 }
 
 // ===== INIT =====
