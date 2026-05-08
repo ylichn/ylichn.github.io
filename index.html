@@ -1435,7 +1435,7 @@ function doAiConfig() {
 // ===== Q&A 知识库 =====
 const QA_KB = [
   {q:['什么是岗位虾','岗位虾是什么','岗位虾定义','岗位虾概念'], a:'岗位虾是给特定岗位配置的专属AI龙虾，作为组织的“数字员工”，拥有组织节点、岗位ID，但没有人类身份信息。\n\n• 本质：数字员工，与人类员工共用同一棵组织树和岗位体系\n• 身份来源：虾塘统一分配虾ID，passport提供虚拟mid和邮箱\n• 与人的关系：独立建表，不混在员工表中；虾之间无上下级关系\n• 岗位含义：虾的岗位本质是“资源包的分组标识”，便于批量管理权限\n• 记忆特性：有记忆且需要记忆隔离；人员离职后虾仍存在，记忆可继承给接任者'},
-  {q:['组织中台职责','组织中台在岗位虾中的职责','组织中台做什么','组织中台负责什么'], a:'组织中台在岗位虾体系中的核心职责：\n\n① 提供主数据服务：维护虾的岗位映射和组织挂靠关系\n② 后台管理页面：提供岗位虾管理的增删改查操作界面\n③ 查询接口：提供“虾是什么岗位、挂在哪”的主数据查询\n④ 不做运行时鉴权：鉴权由天工 + 统一资源网关在调用链路上实时完成\n\n简单说：组织中台 = 岗位虾的“户籍登记处”，只管“虾是谁、在哪”，不管“虾能干什么”。'},
+  {q:['组织中台职责','组织中台在岗位虾中的职责','组织中台做什么','组织中台负责什么'], a:'组织中台在岗位虾体系中的核心职责：\n\n① 提供主数据服务：维护虾的岗位虾和组织挂靠关系\n② 后台管理页面：提供岗位虾管理的增删改查操作界面\n③ 查询接口：提供“虾是什么岗位、挂在哪”的主数据查询\n④ 不做运行时鉴权：鉴权由天工 + 统一资源网关在调用链路上实时完成\n\n简单说：组织中台 = 岗位虾的“户籍登记处”，只管“虾是谁、在哪”，不管“虾能干什么”。'},
   {q:['虾塘是什么','虾塘职责','虾塘做什么'], a:'虾塘是虾管理平台，负责：\n• 虾的创建、注册和生命周期管理\n• 统一分配虾ID\n• 管理虾的技能包（skill）\n• 管理虾的记忆和会话\n\n组织中台的虾ID数据来源就是虾塘接口。'},
   {q:['天工是什么','天工职责','天工做什么'], a:'天工是权限管理平台，负责：\n• 为虾分配功能权限（资源包）\n• 运行时鉴权判断\n• 统一资源网关控制\n\n组织中台提供岗位+组织数据 → 天工基于这些数据做权限判断。'},
   {q:['挂靠方式','三种挂靠','全国一虾','多店一虾','一店一虾','虾怎么挂靠组织'], a:'虾有三种挂靠组织的方式：\n\n① 全国一虾：按领域挂靠（如通用客服虾），整个公司共用一只虾，根据人的权限范围返回结果\n② 多店一虾：一只虾挂多个组织节点（如区域运营虾），根据人的权限范围返回结果\n③ 一店一虾：每店独立一只虾ID（如门店专属虾），最简单，与人的逻辑一致\n\n采取哪种方式主要取决于虾塘的容量上限（记忆上限、会话上限）。'},
@@ -1443,8 +1443,8 @@ const QA_KB = [
   {q:['组织关联方式','按组织ID关联','批量关联','无需关联','关联方式区别'], a:'组织关联方式有三种：\n\n① 按组织ID关联：手动选择具体组织节点，精确控制\n② 批量关联：选择上级组织层级，自动关联该层级下所有岗位对应的组织。当下属组织变更时自动更新\n③ 无需关联：代表该领域所有该岗位的用户都可以使用，不限制组织\n\n选择建议：精确控制用①，动态维护用②，全员可用用③'},
   {q:['资源包是什么','资源包'], a:'资源包是一组功能权限和数据权限的集合。虾通过资源包获得具体能力。\n\n资源包由天工管理，与岗位挂钩。不同岗位可用的资源包不同。'},
   {q:['虾和人的区别','虾账号和人员账号'], a:'岗位虾 vs 人员账号：\n\n• 数据权限：人=静态配置；虾=通过虾的组织+发起对话的人的组织动态决定\n• 功能权限：人=固定功能；虾=通过虾的岗位+发起对话的人的岗位动态决定\n• 存储：人=员工表；虾=独立虾表，不混在一起'},
-  {q:['系统协作链路','虾塘天工组织中台关系','各系统分工'], a:'系统协作链路：\n\n虾塘（上游）→ 组织中台（主数据）→ 天工（下游权限）\n\n• 虾塘：创建虾、分配虾ID、管理技能包和记忆\n• 组织中台：维护虾的岗位映射+组织挂靠关系（主数据）\n• 天工：基于岗位+组织数据做运行时权限判断\n• passport：提供虾的虚拟mid和邮箱\n\n组织中台不做运行时鉴权，只提供主数据查询。'},
-  {q:['待探讨问题','待定义问题','还有什么问题没解决'], a:'当前待探讨问题：\n\n① 多人同时调用同一只虾的并发和记忆上限（待虾塘定义）\n② 岗位和技能之间是否要建立映射（当前逻辑：只要能用这只虾，就能用它所有技能）\n③ 虾记忆隔离的具体实现方式（待虾塘技术方案）'}
+  {q:['系统协作链路','虾塘天工组织中台关系','各系统分工'], a:'系统协作链路：\n\n虾塘（上游）→ 组织中台（主数据）→ 天工（下游权限）\n\n• 虾塘：创建虾、分配虾ID、管理技能包和记忆\n• 组织中台：维护虾的岗位虾+组织挂靠关系（主数据）\n• 天工：基于岗位+组织数据做运行时权限判断\n• passport：提供虾的虚拟mid和邮箱\n\n组织中台不做运行时鉴权，只提供主数据查询。'},
+  {q:['待探讨问题','待定义问题','还有什么问题没解决'], a:'当前待探讨问题：\n\n① 多人同时调用同一只虾的并发和记忆上限（待虾塘定义）\n② 岗位和技能之间是否要建立岗位虾（当前逻辑：只要能用这只虾，就能用它所有技能）\n③ 虾记忆隔离的具体实现方式（待虾塘技术方案）'}
 ];
 
 function matchQA(input) {
@@ -1482,7 +1482,7 @@ function parseAiIntent(input) {
     return { action: '批量禁用', fields: [
       {label:'操作类型', value:'批量禁用'},
       {label:'目标龙虾', value: input.match(/龙虾(\S+)/)?.[1] || '客服助理虾D'},
-      {label:'影响范围', value:'该龙虾全部映射（1条）'},
+      {label:'影响范围', value:'该龙虾全部岗位虾（1条）'},
       {label:'状态变更', value:'启用 → 禁用'}
     ]};
   } else if(input.includes('查询') || input.includes('查找')) {
@@ -1654,7 +1654,7 @@ function validateLobster() {
   const binding = DOMAIN_BINDINGS[val];
   if(binding && binding.status==='启用') {
     if(binding.domain === activeDomain) {
-      warn.innerHTML = '⚠️ 当前龙虾已存在映射，将自动跳转至编辑页面';
+      warn.innerHTML = '⚠️ 当前龙虾已存在岗位虾，将自动跳转至编辑页面';
       warn.style.display = 'block';
       warn.style.borderLeftColor = '#F59E0B';
       warn.style.background = 'rgba(245,158,11,.08)';
@@ -2658,7 +2658,7 @@ function renderOtherMapping() {
   });
 }
 
-// 映射页面导航
+// 岗位虾页面导航
 function omShowList() {
   document.getElementById('org-bc-page').textContent='列表';
   document.getElementById('org-action-bar').innerHTML='';
@@ -2676,7 +2676,7 @@ function omShowView(r) {
   if(!r) return;
   var el = document.getElementById('om-view-page');
   var html = '<div style="margin-top:16px;"><button class="btn btn-default" onclick="omShowList()">← 返回列表</button></div>';
-  html += '<div class="card" style="margin-top:12px;"><div class="form-section-title">映射详情</div>';
+  html += '<div class="card" style="margin-top:12px;"><div class="form-section-title">岗位虾详情</div>';
   html += '<div class="form-row"><div class="form-group"><label>龙虾ID</label><div class="view-value">'+r.id+'</div></div><div class="form-group"><label>龙虾名称</label><div class="view-value">'+r.name+'</div></div><div class="form-group"><label>MID</label><div class="view-value">'+r.mid+'</div></div></div>';
   html += '<div class="form-row"><div class="form-group"><label>邮箱</label><div class="view-value">'+r.email+'</div></div><div class="form-group"><label>归属领域</label><div class="view-value">'+(r.domain||'其他领域1')+'</div></div><div class="form-group"><label>岗位名称</label><div class="view-value">'+r.postName+'</div></div></div>';
   html += '<div class="form-row"><div class="form-group"><label>岗位类型</label><div class="view-value">'+r.postType+'</div></div><div class="form-group"><label>组织关联方式</label><div class="view-value">'+r.assocType+'</div></div><div class="form-group"><label>状态</label><div class="view-value">'+r.status+'</div></div></div>';
