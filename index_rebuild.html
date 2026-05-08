@@ -245,9 +245,6 @@ table tbody tr{transition:background .15s;}
 .people-form-modal .modal{width:720px;max-width:96vw;}
 .people-form-modal .modal-body{max-height:70vh;overflow-y:auto;}
 
-
-/* ===== Disabled Select Grey ===== */
-select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:var(--text-disabled)!important;cursor:not-allowed!important;border-color:var(--border-light)!important;}
 </style>
 </head>
 <body>
@@ -268,7 +265,6 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
       <div class="org-dropdown" id="org-dropdown">
         <div class="org-dropdown-item" onclick="selectOrgSub('people',this);event.stopPropagation();">用户管理</div>
         <div class="org-dropdown-item" onclick="selectOrgSub('tree',this);event.stopPropagation();">组织架构</div>
-        <div class="org-dropdown-item" onclick="selectOrgSub('post',this);event.stopPropagation();">岗位管理</div>
         <div class="org-dropdown-item" onclick="selectOrgSub('mapping',this);event.stopPropagation();">岗位虾映射</div>
       </div>
     </div>
@@ -286,7 +282,7 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
     <span class="sep">/</span>
     <span class="current" id="bc-current">列表</span>
   </div>
-  <div id="action-bar" style="display:flex;align-items:center;gap:10px;margin-left:auto;"></div>
+  <div id="action-bar" style="display:flex;align-items:center;gap:10px;"></div>
 </div>
 
 <!-- Toast -->
@@ -655,18 +651,12 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
     <div class="card">
       <div class="org-tree-toolbar">
         <div class="filter-item"><label>领域</label><select id="org-tree-domain" onchange="renderOrgTree()"><option>其他领域1</option><option>其他领域2</option><option>其他领域3</option><option>其他领域4</option></select></div>
+        <button class="btn btn-primary" onclick="addOrgLevel()">+ 新建层级</button>
+        <button class="btn btn-default" onclick="addRootOrg()">+ 新增一级组织</button>
       </div>
-      <div style="margin-bottom:16px;display:flex;align-items:center;gap:12px;"><div id="org-levels-display" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"></div><button class="btn btn-primary" onclick="addOrgLevel()" style="height:28px;font-size:12px;padding:0 12px;">+ 新建层级</button></div>
-      <div style="font-size:14px;font-weight:700;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;">组织树 <button class="btn btn-primary" onclick="addRootOrg()" style="height:28px;font-size:12px;padding:0 12px;">+ 新增组织</button></div>
-      <!-- 筛选区 -->
-      <div class="filter-area" style="margin-bottom:16px;">
-        <div class="filter-item"><label>组织编码/组织名称</label><input type="text" id="org-tree-search" placeholder="请输入编码或名称"></div>
-        <div class="filter-item"><label>组织层级</label><select id="org-tree-level-filter"><option value="">全部</option></select></div>
-        <div class="filter-item"><label>组织状态</label><select id="org-tree-status-filter"><option value="">全部</option><option>启用</option><option>不启用</option></select></div>
-        <div class="filter-actions"><button class="btn btn-default" onclick="resetOrgTreeFilter()">重置</button><button class="btn btn-primary" onclick="renderOrgTree()">查询</button></div>
-      </div>
-      <!-- 表格区 -->
-      <div class="table-wrap" id="org-tree-container"></div>
+      <div id="org-levels-display" style="margin-bottom:16px;"></div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--border-light);">组织树</div>
+      <div class="org-tree" id="org-tree-container"></div>
     </div>
   </div>
 
@@ -683,7 +673,7 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
           <div class="filter-item"><label>归属领域</label><select id="ppl-f-domain" onchange="onPplDomainChange()"><option value="">全部</option><option>其他领域1</option><option>其他领域2</option><option>其他领域3</option><option>其他领域4</option></select></div>
           <div class="filter-item"><label>岗位层级</label><select id="ppl-f-ptype" onchange="onPplLevelChange()" disabled><option value="">请先选择归属领域</option></select></div>
           <div class="filter-item"><label>组织名称</label><select id="ppl-f-org" disabled><option value="">请先选择岗位层级</option></select></div>
-          <div class="filter-item"><label>岗位名称</label><select id="ppl-f-pname" disabled><option value="">请先选择岗位层级</option></select></div>
+          <div class="filter-item"><label>岗位名称</label><select id="ppl-f-pname"><option value="">请选择岗位名称</option><option>服务店长</option><option>事故服务顾问</option><option>交付邀约主管</option><option>产品助理</option><option>喷漆工程师</option><option>钣金工程师</option><option>零售顾问</option></select></div>
           <div class="filter-item"><label>权限状态</label><select id="ppl-f-perm"><option value="">全部</option><option>有效</option><option>锁定</option><option>离职锁定</option><option>无效</option></select></div>
         </div>
         <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px;"><button class="btn btn-default" onclick="resetPeopleFilter()">重置</button><button class="btn btn-primary" onclick="filterPeople()">查询</button></div>
@@ -700,32 +690,9 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
     <div id="ppl-edit-page" style="display:none;"></div>
   </div>
 
-  <!-- Sub: 岗位管理 -->
-  <div id="org-sub-post" style="display:none;padding:0 28px 28px;">
-    <div id="post-list-view">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 12px;"><h3 style="font-size:16px;font-weight:700;">岗位配置</h3><button class="btn btn-primary" onclick="showPostAdd()">+ 新增岗位</button></div>
-      <div class="card">
-        <div class="filter-area">
-          <div class="filter-item"><label>归属领域</label><select id="post-f-domain" onchange="onPostDomainChange()"><option value="">全部</option><option>其他领域1</option><option>其他领域2</option><option>其他领域3</option><option>其他领域4</option></select></div>
-          <div class="filter-item"><label>岗位层级</label><select id="post-f-level" disabled><option value="">请先选择归属领域</option></select></div>
-          <div class="filter-item"><label>是否启用</label><select id="post-f-status"><option value="">全部</option><option>启用</option><option>不启用</option></select></div>
-          <div class="filter-item"><label>岗位ID/名称</label><input type="text" id="post-f-search" placeholder="请输入岗位ID/名称"></div>
-          <div class="filter-actions"><button class="btn btn-default" onclick="resetPostFilter()">重置</button><button class="btn btn-primary" onclick="renderPostTable()">查询</button></div>
-        </div>
-      </div>
-      <div style="margin:12px 0;"><button class="btn btn-default">导出</button></div>
-      <div class="card" style="padding:0;"><div class="table-wrap" id="post-table-wrap"></div></div>
-    </div>
-    <div id="post-view-page" style="display:none;"></div>
-    <div id="post-add-page" style="display:none;"></div>
-    <div id="post-edit-page" style="display:none;"></div>
-  </div>
-
   <!-- Sub: 岗位虾映射 -->
   <div id="org-sub-mapping" style="display:none;padding:0 28px 28px;">
-    <!-- 映射列表视图 -->
-    <div id="om-list-view">
-    <div style="padding:0;">
+    <div class="content" style="padding:0;">
       <!-- AI 配置助手 -->
       <div class="card" style="margin-bottom:16px;background:linear-gradient(135deg,#F0EFFF 0%,#E8EDFF 50%,#F0F7FF 100%);border:1px solid rgba(99,102,241,.2);position:relative;overflow:hidden;margin-top:16px;">
         <div style="position:absolute;top:-30px;right:-20px;font-size:100px;opacity:.04;pointer-events:none;">🦞</div>
@@ -736,16 +703,16 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
         </div>
         <div style="display:flex;gap:10px;">
           <input type="text" id="om-ai-input" placeholder="试试输入：新增一个服务站运营虾关联到北京服务站" style="flex:1;height:42px;padding:0 16px;border:1px solid rgba(99,102,241,.25);border-radius:10px;font-size:14px;background:#fff;">
-          <button class="btn btn-primary" style="height:42px;padding:0 22px;" data-om-btn="ai">🦞 让虾来配</button>
+          <button class="btn btn-primary" style="height:42px;padding:0 22px;" onclick="showToast('收到指令，处理中...')">🦞 让虾来配</button>
         </div>
         <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
           <span style="font-size:12px;color:#6B7194;font-weight:600;">快捷指令：</span>
-          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;color:#6366F1;font-weight:500;" data-om-shortcut="新增映射：服务站运营虾，关联北京服务站">新增映射</a>
-          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;color:#6366F1;font-weight:500;" data-om-shortcut="禁用所有停用状态的映射">批量禁用</a>
-          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;color:#6366F1;font-weight:500;" data-om-shortcut="查询所有服务站类型且启用的映射">智能查询</a>
+          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;color:#6366F1;font-weight:500;" onclick="document.getElementById('om-ai-input').value='新增映射：服务站运营虾，关联北京服务站';showToast('已填入指令')">新增映射</a>
+          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;color:#6366F1;font-weight:500;" onclick="document.getElementById('om-ai-input').value='禁用所有停用状态的映射';showToast('已填入指令')">批量禁用</a>
+          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;color:#6366F1;font-weight:500;" onclick="document.getElementById('om-ai-input').value='查询所有服务站类型且启用的映射';showToast('已填入指令')">智能查询</a>
           <span style="color:#D4D7E5;">|</span>
-          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(139,92,246,.06);border-radius:6px;color:#7C3AED;font-weight:500;" data-om-shortcut="组织中台在岗位虾中的职责是什么">💬 组织中台职责</a>
-          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(139,92,246,.06);border-radius:6px;color:#7C3AED;font-weight:500;" data-om-shortcut="三种挂靠方式有什么区别">💬 挂靠方式</a>
+          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(139,92,246,.06);border-radius:6px;color:#7C3AED;font-weight:500;" onclick="document.getElementById('om-ai-input').value='组织中台在岗位虾中的职责是什么';showToast('已填入问题')">💬 组织中台职责</a>
+          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(139,92,246,.06);border-radius:6px;color:#7C3AED;font-weight:500;" onclick="document.getElementById('om-ai-input').value='三种挂靠方式有什么区别';showToast('已填入问题')">💬 挂靠方式</a>
         </div>
       </div>
       <!-- 筛选 -->
@@ -760,43 +727,32 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
           <div class="filter-item"><label>岗位ID/名称</label><select id="om-f-post" disabled><option value="">请先选择岗位层级</option></select></div>
           <div class="filter-item"><label>岗位状态</label><select id="om-f-pstatus"><option value="">全部</option><option>有效</option><option>无效</option></select></div>
           <div class="filter-item"><label>组织ID/名称</label><select id="om-f-org" disabled><option value="">请先选择岗位层级</option></select></div>
-          <div class="filter-actions" id="om-filter-actions">
-            <button class="btn btn-primary" data-om-btn="query">查询</button>
-            <button class="btn btn-default" data-om-btn="reset">重置</button>
-            <button class="btn btn-primary" data-om-btn="add" style="margin-left:16px;">+ 新增映射</button>
-            <button class="btn btn-default" data-om-btn="export">导出</button>
+          <div class="filter-actions">
+            <button class="btn btn-primary" onclick="renderOtherMapping()">查询</button>
+            <button class="btn btn-default" onclick="resetOtherMapping()">重置</button>
+            <button class="btn btn-primary" onclick="showToast('新增映射功能')" style="margin-left:16px;">+ 新增映射</button>
+            <button class="btn btn-default" onclick="showToast('导出中...')">导出</button>
           </div>
         </div>
       </div>
       <!-- 表格 -->
       <div class="card" style="margin-top:12px;padding:0;"><div class="table-wrap" id="other-mapping-table"></div></div>
     </div>
-    </div><!-- /om-list-view -->
-    <!-- 新增映射视图 -->
-    <div id="om-add-view" style="display:none;">
-      <!-- 龙虾信息 -->
-      <div style="display:flex;align-items:center;margin:16px 0 8px;"><div style="font-size:16px;font-weight:700;color:var(--text-main);display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:linear-gradient(180deg,#6366F1,#818CF8);border-radius:2px;display:inline-block;"></span>龙虾信息</div></div>
-      <div class="card"><div class="form-section">
-        <div class="form-row"><div class="form-group"><label><span class="req">*</span>龙虾ID/名称</label><select id="om-add-lobster"><option value="">请选择龙虾</option><option value="M9901">【M9901-待分配虾X】</option><option value="M9902">【M9902-待分配虾Y】</option><option value="M9903">【M9903-待分配虾Z】</option></select><div class="hint">数据来源：虾塘已注册的虾ID列表</div></div></div>
-        <div class="form-row"><div class="form-group"><label>mid</label><div class="view-value" style="min-height:32px;padding:6px 12px;background:#F5F6FA;border-radius:8px;border:1px solid var(--border-light);">-</div><div class="hint">选择龙虾后自动从虾塘带出</div></div><div class="form-group"><label>邮箱</label><div class="view-value" style="min-height:32px;padding:6px 12px;background:#F5F6FA;border-radius:8px;border:1px solid var(--border-light);">-</div><div class="hint">选择龙虾后自动从虾塘带出</div></div></div>
-        <div style="margin-top:8px;"><label style="font-size:12px;color:var(--text-sub);font-weight:500;"><span class="req">*</span>龙虾状态</label><div class="radio-group" style="margin-top:4px;"><label><input type="radio" name="om-add-status" value="启用" checked> 启用</label><label><input type="radio" name="om-add-status" value="禁用"> 禁用</label></div></div>
-      </div></div>
-      <!-- 岗位信息 -->
-      <div style="display:flex;align-items:center;margin:16px 0 8px;"><div style="font-size:16px;font-weight:700;color:var(--text-main);display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:linear-gradient(180deg,#6366F1,#818CF8);border-radius:2px;display:inline-block;"></span>岗位信息</div></div>
-      <div class="post-module"><div class="post-module-header"><div class="post-module-title">岗位 1 <span class="badge">必填</span></div></div><div class="post-module-body">
-        <div class="form-row"><div class="form-group"><label><span class="req">*</span>归属领域</label><select id="om-add-domain" onchange="onOmAddDomainChange()"><option value="">请选择</option><option>其他领域1</option><option>其他领域2</option><option>其他领域3</option><option>其他领域4</option></select></div><div class="form-group"><label><span class="req">*</span>岗位层级</label><select id="om-add-level" disabled><option value="">请先选择归属领域</option></select></div></div>
-        <div class="form-row"><div class="form-group"><label><span class="req">*</span>岗位名称</label><select id="om-add-post" disabled><option value="">请先选择岗位层级</option></select></div><div class="form-group"><label><span class="req">*</span>岗位状态</label><div class="radio-group"><label><input type="radio" name="om-add-post-status" value="有效" checked> 有效</label><label><input type="radio" name="om-add-post-status" value="无效"> 无效</label></div></div></div>
-        <div class="form-row"><div class="form-group"><label><span class="req">*</span>组织关联方式</label><select><option value="">请选择</option><option>按组织ID关联</option><option>批量关联</option><option>无需关联</option></select></div><div class="form-group"><label>组织名称</label><select id="om-add-org" disabled><option value="">请先选择岗位层级</option></select></div></div>
-      </div></div>
-    </div>
-    <!-- 查看映射视图 -->
-    <div id="om-view-page" style="display:none;"></div>
-    <!-- 编辑映射视图 -->
-    <div id="om-edit-page" style="display:none;"></div>
   </div>
 </div><!-- /module-org -->
 
-</div>
+<!-- 新增组织弹窗 -->
+<div class="modal-overlay" id="add-org-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal">
+    <div class="modal-header"><span id="add-org-modal-title">新增组织节点</span><span class="modal-close" onclick="document.getElementById('add-org-modal').classList.remove('show')">&times;</span></div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:14px;"><label><span class="req">*</span>组织名称</label><input id="new-org-name" placeholder="请输入组织名称"></div>
+      <div class="form-group" style="margin-bottom:14px;"><label>组织编码</label><input id="new-org-code" value="" disabled style="background:#F2F3F9;color:var(--text-sub);"><div class="hint">系统自动生成</div></div>
+      <div class="form-group" style="margin-bottom:14px;"><label><span class="req">*</span>所属层级</label><select id="new-org-level"></select></div>
+      <div class="form-group" style="margin-bottom:14px;"><label><span class="req">*</span>父节点</label><select id="new-org-parent"></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-default" onclick="document.getElementById('add-org-modal').classList.remove('show')">取消</button><button class="btn btn-primary" onclick="confirmAddOrg()">确定</button></div>
+  </div>
 </div>
 
 <!-- 新建层级弹窗 -->
@@ -2008,22 +1964,20 @@ function selectOrgSub(tab, el) {
   // Switch sub content
   document.getElementById('org-sub-tree').style.display = tab==='tree'?'':'none';
   document.getElementById('org-sub-people').style.display = tab==='people'?'':'none';
-  document.getElementById('org-sub-post').style.display = tab==='post'?'':'none';
   document.getElementById('org-sub-mapping').style.display = tab==='mapping'?'':'none';
   // Update dropdown active state
   document.querySelectorAll('.org-dropdown-item').forEach(function(i){i.classList.remove('active');});
   if(el) el.classList.add('active');
   if(tab==='tree') renderOrgTree();
   if(tab==='people') { document.getElementById('ppl-list-view').style.display=''; document.getElementById('ppl-view-page').style.display='none'; document.getElementById('ppl-edit-page').style.display='none'; renderPeopleTable(); }
-  if(tab==='post') renderPostTable();
-  if(tab==='mapping') renderOtherMapping();
+  if(tab==='mapping') { setTimeout(function(){renderOtherMapping();},50); }
 }
 
 function switchToOrgModule(el) { selectOrgSub('tree'); }
 
 function switchBackToShrimp() {
   document.getElementById('module-org').style.display='none';
-  document.getElementById('breadcrumb').style.display='flex';
+  document.getElementById('breadcrumb').style.display='';
   document.querySelector('.scroll-content').style.display='';
   const tabs = document.querySelectorAll('.header-tab');
   tabs.forEach(t=>t.classList.remove('active'));
@@ -2035,7 +1989,7 @@ const _origSwitchDomain = switchDomain;
 switchDomain = function(el) {
   // If we're in org module, switch back to shrimp
   document.getElementById('module-org').style.display='none';
-  document.getElementById('breadcrumb').style.display='flex';
+  document.getElementById('breadcrumb').style.display='';
   document.querySelector('.scroll-content').style.display='';
   // Call original
   _origSwitchDomain(el);
@@ -2044,11 +1998,9 @@ switchDomain = function(el) {
 function switchOrgSubTab(tab) {
   document.getElementById('org-sub-tree').style.display = tab==='tree'?'':'none';
   document.getElementById('org-sub-people').style.display = tab==='people'?'':'none';
-  document.getElementById('org-sub-post').style.display = tab==='post'?'':'none';
   document.getElementById('org-sub-mapping').style.display = tab==='mapping'?'':'none';
   if(tab==='tree') renderOrgTree();
   if(tab==='people') renderPeopleTable();
-  if(tab==='post') renderPostTable();
   if(tab==='mapping') renderOtherMapping();
 }
 
@@ -2089,79 +2041,41 @@ function renderOrgTree() {
   if(!domain) return;
   const tree = ORG_TREES[domain.value];
   const levels = ORG_LEVELS[domain.value] || [];
-  // Update level filter dropdown
-  const levelFilter = document.getElementById('org-tree-level-filter');
-  if(levelFilter) { levelFilter.innerHTML = '<option value="">全部</option>'+levels.map(l=>'<option>'+l.name+'</option>').join(''); }
   // Render levels display
   const levelsEl = document.getElementById('org-levels-display');
   if(levels.length>0) {
+    // Build chain from root levels
     const chain = []; const roots = levels.filter(l=>!l.parent);
     function buildChain(parent,depth){ const children=levels.filter(l=>l.parent===parent); children.forEach(c=>{chain.push(c);buildChain(c.name,depth+1);}); }
     roots.forEach(r=>{chain.push(r);buildChain(r.name,1);});
     levelsEl.innerHTML = '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span style="font-size:13px;color:var(--text-sub);font-weight:600;">层级结构：</span>'+chain.map((l,i)=>'<span style="font-size:12px;padding:3px 10px;background:var(--primary-light);color:var(--primary);border-radius:6px;font-weight:500;">L'+(i+1)+' '+l.name+'</span>'+(i<chain.length-1?'<span style="color:var(--border);">→</span>':'')).join('')+'</div>';
   } else { levelsEl.innerHTML = '<div style="font-size:12px;color:var(--text-disabled);">暂未定义层级，请先新建层级</div>'; }
-  if(!tree) { document.getElementById('org-tree-container').innerHTML='<p style="color:var(--text-sub);padding:20px 0;text-align:center;">暂无组织数据，请先新建层级后新增组织</p>'; return; }
-  // Flatten tree into rows
-  const rows = [];
-  function flattenTree(node, depth) {
-    rows.push({id:node.id, code:node.code, name:node.name, level:node.type, status:node.status||'启用', updateTime:node.updateTime||'2026-05-07 14:30:00', depth:depth});
-    if(node.children) node.children.forEach(c=>flattenTree(c, depth+1));
+  if(!tree) { document.getElementById('org-tree-container').innerHTML='<p style="color:var(--text-sub);padding:20px 0;">暂无组织数据，请先新建层级后新增组织</p>'; return; }
+  document.getElementById('org-tree-container').innerHTML = '<ul>'+renderNode(tree)+'</ul>';
+}
+
+function renderNode(node) {
+  const hasChildren = node.children && node.children.length > 0;
+  const expanded = node.expanded !== false;
+  const arrow = hasChildren ? (expanded?'▼':'▶') : '•';
+  let html = '<li>';
+  html += '<span class="org-node'+(expanded&&hasChildren?' expanded':'')+'" data-id="'+node.id+'">';
+  html += '<span class="toggle" onclick="toggleOrgNode(event,\''+node.id+'\')">'+arrow+'</span>';
+  html += '<span class="node-label">'+node.name+'</span>';
+  html += '<span class="node-type">'+node.type+'</span>';
+  html += '<span style="font-size:10px;color:var(--text-disabled);margin-left:4px;">'+node.code+'</span>';
+  html += '<span class="org-node-actions">';
+  html += '<a onclick="addChildOrg(event,\''+node.id+'\')" title="新增子节点">+子</a>';
+  html += '<a onclick="addSiblingOrg(event,\''+node.id+'\')" title="新增同级">+同</a>';
+  html += '<a onclick="editOrgNode(event,\''+node.id+'\',\''+node.name+'\')" title="编辑">编辑</a>';
+  html += '<a class="del" onclick="deleteOrgNode(event,\''+node.id+'\')" title="删除">删除</a>';
+  html += '</span></span>';
+  if(hasChildren && expanded) {
+    html += '<ul>'+node.children.map(c=>renderNode(c)).join('')+'</ul>';
   }
-  flattenTree(tree, 0);
-  // Apply filters
-  const searchVal = (document.getElementById('org-tree-search')||{}).value||""; const searchLower=searchVal.trim().toLowerCase();
-  const levelVal = (document.getElementById('org-tree-level-filter')||{}).value||"";
-  const statusVal = (document.getElementById('org-tree-status-filter')||{}).value||"";
-  let filtered = rows;
-  if(searchLower) filtered = filtered.filter(r=>(r.code+r.name).toLowerCase().includes(searchLower));
-  if(levelVal) filtered = filtered.filter(r=>r.level===levelVal);
-  if(statusVal) filtered = filtered.filter(r=>r.status===statusVal);
-  // Render table
-  let html = '<table><thead><tr><th>组织编码</th><th>组织名称</th><th>组织层级</th><th>组织状态</th><th>最后更新时间</th><th>操作</th></tr></thead><tbody>';
-  if(filtered.length===0) { html+='<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-sub);">暂无组织数据，请先新建层级后新增组织</td></tr>'; }
-  filtered.forEach(r=>{
-    const indent = r.depth * 24;
-    const statusTag = r.status==='启用'?'<span class="tag tag-green">启用</span>':'<span class="tag tag-gray">不启用</span>';
-    let ops = '';
-    if(!isLastLevel(r.level)) ops += '<a class="btn-text" onclick="addChildOrg(event,\''+r.id+'\')">+子节点</a>';
-    ops += '<a class="btn-text" onclick="addSiblingOrg(event,\''+r.id+'\')">+同节点</a>';
-    ops += '<a class="btn-text" onclick="editOrgNode(event,\''+r.id+'\',\''+r.name+'\')">编辑</a>';
-    ops += '<a class="btn-text" onclick="showOrgLog(event,\''+r.id+'\',\''+r.name+'\')">日志</a>';
-    html += '<tr><td style="padding-left:'+(14+indent)+'px;">'+r.code+'</td><td>'+r.name+'</td><td>'+r.level+'</td><td>'+statusTag+'</td><td>'+r.updateTime+'</td><td class="op-cell">'+ops+'</td></tr>';
-  });
-  html += '</tbody></table>';
-  document.getElementById('org-tree-container').innerHTML = html;
+  html += '</li>';
+  return html;
 }
-
-function resetOrgTreeFilter() {
-  var s=document.getElementById('org-tree-search'); if(s)s.value='';
-  var l=document.getElementById('org-tree-level-filter'); if(l)l.selectedIndex=0;
-  var st=document.getElementById('org-tree-status-filter'); if(st)st.selectedIndex=0;
-  renderOrgTree();
-}
-
-function showOrgLog(e, id, name) {
-  if(e) e.stopPropagation();
-  var modalEl = document.getElementById('org-modal-overlay');
-  var html = '<div class="modal" style="width:680px;"><div class="modal-header">操作日志 - '+name+'<span class="modal-close" onclick="document.getElementById(\'org-modal-overlay\').classList.remove(\'show\')">&times;</span></div><div class="modal-body" style="max-height:400px;overflow-y:auto;">';
-  html += '<table><thead><tr><th>序号</th><th>时间</th><th>操作来源</th><th>操作人</th><th>操作记录</th></tr></thead><tbody>';
-  html += '<tr><td>1</td><td>2026-05-07 14:30:00</td><td>系统</td><td>李艳</td><td>新增组织节点</td></tr>';
-  html += '<tr><td>2</td><td>2026-05-06 10:15:00</td><td>系统</td><td>李艳</td><td>修改组织名称</td></tr>';
-  html += '<tr><td>3</td><td>2026-05-05 09:00:00</td><td>API</td><td>admin</td><td>初始化创建</td></tr>';
-  html += '</tbody></table></div><div class="modal-footer"><button class="btn btn-default" onclick="document.getElementById(\'org-modal-overlay\').classList.remove(\'show\')">关闭</button></div></div>';
-  modalEl.innerHTML = html;
-  modalEl.classList.add('show');
-}
-
-function isLastLevel(type) {
-  var domain = document.getElementById('org-tree-domain').value;
-  var levels = ORG_LEVELS[domain] || [];
-  if(levels.length === 0) return false;
-  return type === levels[levels.length - 1].name;
-}
-
-// Keep renderNode for backward compat (not used in table mode)
-function renderNode(node) { return ''; }
 
 function findNode(node, id) {
   if(node.id===id) return node;
@@ -2191,121 +2105,42 @@ function collectAllNodes(node, list) {
   if(node.children) node.children.forEach(c=>collectAllNodes(c, list));
 }
 
-function openOrgEditModal(id) {
-  var domain = document.getElementById('org-tree-domain').value;
-  var tree = ORG_TREES[domain];
-  var node = findNode(tree, id);
-  if(!node) return;
-  var levels = ORG_LEVELS[domain] || [];
-  var selectedLevel = levels.find(function(l){return l.name===node.type;});
-  var levelOpts = levels.map(function(l){return '<option'+(l.name===node.type?' selected':'')+'>'+l.name+'</option>';}).join('');
-  
-  // Parent options based on current level
-  var parentHtml = '';
-  if(!selectedLevel || !selectedLevel.parent) {
-    parentHtml = '<select disabled><option value="">无需选择（一级层级）</option></select>';
+function openOrgModal(fixedParentId) {
+  const domain = document.getElementById('org-tree-domain').value;
+  const levels = ORG_LEVELS[domain] || [];
+  const levelSel = document.getElementById('new-org-level');
+  levelSel.innerHTML = '<option value="">请选择</option>'+levels.map(l=>'<option>'+l.name+'</option>').join('');
+  // Auto-gen code
+  const prefix = domain.replace('其他领域','OT');
+  document.getElementById('new-org-code').value = prefix+'-'+(String(orgCodeCounter++).padStart(4,'0'));
+  document.getElementById('new-org-name').value='';
+  // Parent node select
+  const parentSel = document.getElementById('new-org-parent');
+  const tree = getCurrentTree();
+  const allNodes = []; collectAllNodes(tree, allNodes);
+  if(fixedParentId) {
+    // Fixed parent (from +子 click)
+    const pNode = allNodes.find(n=>n.id===fixedParentId);
+    parentSel.innerHTML = '<option value="'+fixedParentId+'">'+(pNode?pNode.code+'-'+pNode.name:fixedParentId)+'</option>';
+    parentSel.disabled = true;
   } else {
-    var parentLevelName = selectedLevel.parent;
-    var parentOrgs = [];
-    function collectP(n){if(n.type===parentLevelName) parentOrgs.push(n); if(n.children) n.children.forEach(collectP);}
-    collectP(tree);
-    // Find current parent
-    var currentParent = findParent(tree, id, null);
-    var parentOpts = '<option value="">请选择</option>'+parentOrgs.map(function(o){return '<option value="'+o.id+'"'+(currentParent&&currentParent.id===o.id?' selected':'')+'>'+o.code+'-'+o.name+'</option>';}).join('');
-    parentHtml = '<select id="edit-org-parent">'+parentOpts+'</select>';
+    parentSel.disabled = false;
+    parentSel.innerHTML = '<option value="">无（作为一级组织）</option>'+allNodes.map(n=>'<option value="'+n.id+'">'+n.code+'-'+n.name+'</option>').join('');
   }
-  
-  var modalEl = document.getElementById('org-modal-overlay');
-  modalEl.innerHTML = '<div class="modal"><div class="modal-header">编辑组织<span class="modal-close" onclick="document.getElementById(\'org-modal-overlay\').classList.remove(\'show\')">&times;</span></div><div class="modal-body"><div class="form-group" style="margin-bottom:14px;"><label><span class="req">*</span>组织名称</label><input id="edit-org-name" value="'+node.name+'"></div><div class="form-group" style="margin-bottom:14px;"><label>组织编码</label><input value="'+node.code+'" disabled style="background:#F2F3F9;color:var(--text-sub);"></div><div class="form-group" style="margin-bottom:14px;"><label><span class="req">*</span>所属层级</label><select id="edit-org-level" onchange="onEditOrgLevelChange(\''+domain+'\',\''+id+'\')">'+levelOpts+'</select></div><div class="form-group" style="margin-bottom:14px;" id="edit-org-parent-group"><label>父节点</label>'+parentHtml+'</div></div><div class="modal-footer"><button class="btn btn-default" onclick="document.getElementById(\'org-modal-overlay\').classList.remove(\'show\')">取消</button><button class="btn btn-primary" onclick="confirmEditOrg(\''+id+'\')">确定</button></div></div>';
-  modalEl.classList.add('show');
+  document.getElementById('add-org-modal').classList.add('show');
 }
 
-function onEditOrgLevelChange(domain, nodeId) {
-  var level = document.getElementById('edit-org-level').value;
-  var levels = ORG_LEVELS[domain] || [];
-  var selectedLevel = levels.find(function(l){return l.name===level;});
-  var parentGroup = document.getElementById('edit-org-parent-group');
-  if(!selectedLevel || !selectedLevel.parent) {
-    parentGroup.innerHTML = '<label>父节点</label><select disabled><option value="">无需选择（一级层级）</option></select>';
-    return;
-  }
-  var parentLevelName = selectedLevel.parent;
-  var tree = ORG_TREES[domain];
-  var parentOrgs = [];
-  function collectPE(n){if(n.type===parentLevelName && n.id!==nodeId) parentOrgs.push(n); if(n.children) n.children.forEach(collectPE);}
-  if(tree) collectPE(tree);
-  var opts = '<option value="">请选择</option>'+parentOrgs.map(function(o){return '<option value="'+o.id+'">'+o.code+'-'+o.name+'</option>';}).join('');
-  parentGroup.innerHTML = '<label><span class="req">*</span>父节点</label><select id="edit-org-parent">'+opts+'</select>';
-}
-
-function confirmEditOrg(id) {
-  var name = document.getElementById('edit-org-name').value.trim();
-  var level = document.getElementById('edit-org-level').value;
-  if(!name) { showToast('请填写组织名称'); return; }
-  var domain = document.getElementById('org-tree-domain').value;
-  var tree = ORG_TREES[domain];
-  var node = findNode(tree, id);
-  if(node) {
-    node.name = name;
-    node.type = level;
-  }
-  document.getElementById('org-modal-overlay').classList.remove('show');
-  renderOrgTree();
-  showToast('已更新 ✨');
-}
-
-function addRootOrg() { orgAddParent='__root__'; openOrgModal(null); }
-function addChildOrg(e,id) { e.stopPropagation(); orgAddParent=id; openOrgModal(id); }
+function addRootOrg() { orgAddParent='__root__'; document.getElementById('add-org-modal-title').textContent='新增一级组织'; openOrgModal(null); }
+function addChildOrg(e,id) { e.stopPropagation(); orgAddParent=id; document.getElementById('add-org-modal-title').textContent='新增子组织'; openOrgModal(id); }
 function addSiblingOrg(e,id) {
   e.stopPropagation();
-  var tree2=ORG_TREES[document.getElementById('org-tree-domain').value];
-  var p=findParent(tree2,id,null);
-  orgAddParent=p?p.id:'__root__';
-  openOrgModal(p?p.id:null);
-}
-
-function openOrgModal(fixedParentId) {
-  var domain = document.getElementById('org-tree-domain').value;
-  var levels = ORG_LEVELS[domain] || [];
-  var prefix = domain.replace('其他领域','OT');
-  var code = prefix+'-'+(String(orgCodeCounter++).padStart(4,'0'));
-  var tree = ORG_TREES[domain];
-  var allNodes = []; function collectAll(n){allNodes.push(n);if(n.children)n.children.forEach(collectAll);}
-  if(tree) collectAll(tree);
-  var parentHtml = '';
-  if(fixedParentId) {
-    var pn = allNodes.find(function(n){return n.id===fixedParentId;});
-    parentHtml = '<select disabled><option>'+(pn?pn.code+'-'+pn.name:fixedParentId)+'</option></select>';
-  } else {
-    parentHtml = '<select id="new-org-parent" disabled><option value="">请先选择所属层级</option></select>';
-  }
-  var levelOpts = '<option value="">请选择</option>'+levels.map(function(l){return '<option>'+l.name+'</option>';}).join('');
-  var modalEl = document.getElementById('org-modal-overlay');
-  modalEl.innerHTML = '<div class="modal"><div class="modal-header">新增组织<span class="modal-close" onclick="document.getElementById(\'org-modal-overlay\').classList.remove(\'show\')">&times;</span></div><div class="modal-body"><div class="form-group" style="margin-bottom:14px;"><label><span class="req">*</span>组织名称</label><input id="new-org-name" placeholder="请输入组织名称"></div><div class="form-group" style="margin-bottom:14px;"><label>组织编码</label><input value="'+code+'" disabled style="background:#F2F3F9;color:var(--text-sub);"><div style="font-size:11px;color:var(--text-disabled);">系统自动生成</div></div><div class="form-group" style="margin-bottom:14px;"><label><span class="req">*</span>所属层级</label><select id="new-org-level" onchange="onOrgLevelChange(\''+domain+'\','+JSON.stringify(fixedParentId)+')">'+levelOpts+'</select></div><div class="form-group" style="margin-bottom:14px;" id="org-parent-group"><label>父节点</label>'+parentHtml+'</div></div><div class="modal-footer"><button class="btn btn-default" onclick="document.getElementById(\'org-modal-overlay\').classList.remove(\'show\')">取消</button><button class="btn btn-primary" onclick="confirmAddOrg(\''+code+'\')">确定</button></div></div>';
-  modalEl.classList.add('show');
-}
-
-function onOrgLevelChange(domain, fixedParentId) {
-  if(fixedParentId) return;
-  var level = document.getElementById('new-org-level').value;
-  var levels = ORG_LEVELS[domain] || [];
-  var selectedLevel = levels.find(function(l){return l.name===level;});
-  var parentGroup = document.getElementById('org-parent-group');
-  if(!level || !selectedLevel) {
-    parentGroup.innerHTML = '<label>父节点</label><select id="new-org-parent" disabled><option value="">请先选择所属层级</option></select>';
-    return;
-  }
-  if(!selectedLevel.parent) {
-    parentGroup.innerHTML = '<label>父节点</label><select id="new-org-parent" disabled><option value="">无需选择（一级层级）</option></select>';
-    return;
-  }
-  var parentLevelName = selectedLevel.parent;
-  var tree = ORG_TREES[domain];
-  var parentOrgs = [];
-  function collectByLv(node){if(node.type===parentLevelName) parentOrgs.push(node); if(node.children) node.children.forEach(collectByLv);}
-  if(tree) collectByLv(tree);
-  var opts = '<option value="">请选择</option>'+parentOrgs.map(function(o){return '<option value="'+o.id+'">'+o.code+'-'+o.name+'</option>';}).join('');
-  parentGroup.innerHTML = '<label><span class="req">*</span>父节点</label><select id="new-org-parent">'+opts+'</select>';
+  // Sibling = same parent
+  const tree = getCurrentTree();
+  const parent = findParent(tree, id, null);
+  const parentId = parent ? parent.id : null;
+  orgAddParent = parentId ? parentId : '__root__';
+  document.getElementById('add-org-modal-title').textContent='新增同级组织';
+  openOrgModal(parentId);
 }
 
 function confirmAddOrg() {
@@ -2357,7 +2192,13 @@ function confirmAddLevel() {
 
 function editOrgNode(e, id, oldName) {
   e.stopPropagation();
-  openOrgEditModal(id);
+  const newName = prompt('编辑组织名称', oldName);
+  if(newName && newName.trim()) {
+    const node = findNode(getCurrentTree(), id);
+    if(node) node.name = newName.trim();
+    renderOrgTree();
+    showToast('已更新');
+  }
 }
 
 function deleteOrgNode(e, id) {
@@ -2415,37 +2256,27 @@ function onPplDomainChange() {
   const domain = document.getElementById('ppl-f-domain').value;
   const levelSel = document.getElementById('ppl-f-ptype');
   const orgSel = document.getElementById('ppl-f-org');
-  const postSel = document.getElementById('ppl-f-pname');
   if(!domain) {
     levelSel.innerHTML='<option value="">请先选择归属领域</option>'; levelSel.disabled=true;
     orgSel.innerHTML='<option value="">请先选择岗位层级</option>'; orgSel.disabled=true;
-    postSel.innerHTML='<option value="">请先选择岗位层级</option>'; postSel.disabled=true;
     return;
   }
   const levels = ORG_LEVELS[domain] || [];
   levelSel.innerHTML='<option value="">请选择岗位层级</option>'+levels.map(l=>'<option>'+l.name+'</option>').join('');
   levelSel.disabled=false;
   orgSel.innerHTML='<option value="">请先选择岗位层级</option>'; orgSel.disabled=true;
-  postSel.innerHTML='<option value="">请先选择岗位层级</option>'; postSel.disabled=true;
 }
 function onPplLevelChange() {
   const domain = document.getElementById('ppl-f-domain').value;
   const level = document.getElementById('ppl-f-ptype').value;
   const orgSel = document.getElementById('ppl-f-org');
-  const postSel = document.getElementById('ppl-f-pname');
-  if(!level) {
-    orgSel.innerHTML='<option value="">请先选择岗位层级</option>'; orgSel.disabled=true;
-    postSel.innerHTML='<option value="">请先选择岗位层级</option>'; postSel.disabled=true;
-    return;
-  }
+  if(!level) { orgSel.innerHTML='<option value="">请先选择岗位层级</option>'; orgSel.disabled=true; return; }
   // Get orgs of that level from tree
   const tree = ORG_TREES[domain];
   const orgs = []; function collect(node){if(node.level===level) orgs.push(node); if(node.children) node.children.forEach(collect);}
   if(tree) collect(tree);
   orgSel.innerHTML='<option value="">全部</option>'+orgs.map(o=>'<option>'+o.code+'-'+o.name+'</option>').join('');
   orgSel.disabled=false;
-  postSel.innerHTML='<option value="">全部</option><option>服务店长</option><option>事故服务顾问</option><option>交付邀约主管</option><option>产品助理</option><option>喷漆工程师</option><option>钣金工程师</option><option>零售顾问</option>';
-  postSel.disabled=false;
 }
 
 function filterPeople(){ renderPeopleTable(); }
@@ -2493,7 +2324,7 @@ function backToPplList(){
 function editUserStatus(id) {
   const p = PEOPLE_DATA.find(x=>x.id===id); if(!p) return;
   const modal = document.getElementById('people-form-modal');
-  modal.querySelector('.modal').innerHTML = '<div class="modal-header">编辑用户状态<span class="modal-close" onclick="document.getElementById(\'people-form-modal\').classList.remove(\'show\')">&times;</span></div><div class="modal-body"><p style="margin-bottom:12px;">请选择用户状态：</p><div class="radio-group"><label><input type="radio" name="edit-ustatus" value="有效" '+(p.userStatus==='有效'?'checked':'')+'> 有效</label><label><input type="radio" name="edit-ustatus" value="无效" '+(p.userStatus==='无效'?'checked':'')+'> 无效</label></div><p class="warning" style="margin-top:12px;">此操作会同时更新组织中台所有渠道（包括3C、汽车、中国区售后等）的状态，请谨慎操作</p></div><div class="modal-footer"><button class="btn btn-default" onclick="document.getElementById(\'people-form-modal\').classList.remove(\'show\')">取消</button><button class="btn btn-primary" onclick="confirmEditStatus('+id+')">确定</button></div>';
+  modal.querySelector('.modal').innerHTML = '<div class="modal-header">编辑用户状态<span class="modal-close" onclick="document.getElementById(\'people-form-modal\').classList.remove(\'show\')">&times;</span></div><div class="modal-body"><p style="margin-bottom:12px;">请选择用户状态：</p><div class="radio-group"><label><input type="radio" name="edit-ustatus" value="有效" '+(p.userStatus==='有效'?'checked':'')+'> 有效</label><label><input type="radio" name="edit-ustatus" value="无效" '+(p.userStatus==='无效'?'checked':'')+'> 无效</label></div><p class="warning" style="margin-top:12px;">此操作会同时更新所有渠道（3C、汽车、中国区售后）的状态，请谨慎操作</p></div><div class="modal-footer"><button class="btn btn-default" onclick="document.getElementById(\'people-form-modal\').classList.remove(\'show\')">取消</button><button class="btn btn-primary" onclick="confirmEditStatus('+id+')">确定</button></div>';
   modal.classList.add('show');
 }
 function confirmEditStatus(id) {
@@ -2544,7 +2375,7 @@ function renderEditPostCard(pt, idx) {
   const hasLevel = pt.channel || pt.postType;
   html += '<div class="form-group"><label><span class="req">*</span>岗位层级</label><select id="ep-level-'+idx+'" onchange="onEditPostLevelChange('+idx+')"'+(hasLevel?'':'disabled')+'>'+(!hasLevel?'<option value="">请先选择归属领域</option>':'<option value="">请选择</option><option'+(pt.postType==='总部'?' selected':'')+'>总部</option><option'+(pt.postType==='大区'?' selected':'')+'>大区</option><option'+(pt.postType==='服务站'?' selected':'')+'>服务站</option><option'+(pt.postType==='区域'?' selected':'')+'>区域</option><option'+(pt.postType==='站点'?' selected':'')+'>站点</option>')+'</select></div>';
   html += '<div class="form-group"><label><span class="req">*</span>组织名称</label><select id="ep-org-'+idx+'" disabled>'+(hasLevel?'':'disabled')+'><option value="">'+(hasLevel?"请选择":"请先选择岗位层级")+'</option>'+(pt.orgCode?'<option selected>'+pt.orgCode+'-'+pt.orgName+'</option>':'')+'</select></div>';
-  html += '<div class="form-group"><label><span class="req">*</span>岗位名称</label><select id="ep-post-'+idx+'" '+(hasLevel?'':'disabled')+'><option value="">'+(hasLevel?"请选择":"请先选择岗位层级")+'</option><option'+(pt.name==='服务店长'?' selected':'')+'>服务店长</option><option'+(pt.name==='事故服务顾问'?' selected':'')+'>事故服务顾问</option><option'+(pt.name==='交付邀约主管'?' selected':'')+'>交付邀约主管</option><option'+(pt.name==='产品助理'?' selected':'')+'>产品助理</option><option'+(pt.name==='喷漆工程师'?' selected':'')+'>喷漆工程师</option><option'+(pt.name==='钣金工程师'?' selected':'')+'>钣金工程师</option><option'+(pt.name==='零售顾问'?' selected':'')+'>零售顾问</option></select></div></div>';
+  html += '<div class="form-group"><label><span class="req">*</span>岗位名称</label><select><option value="">请选择</option><option'+(pt.name==='服务店长'?' selected':'')+'>服务店长</option><option'+(pt.name==='事故服务顾问'?' selected':'')+'>事故服务顾问</option><option'+(pt.name==='交付邀约主管'?' selected':'')+'>交付邀约主管</option><option'+(pt.name==='产品助理'?' selected':'')+'>产品助理</option><option'+(pt.name==='喷漆工程师'?' selected':'')+'>喷漆工程师</option><option'+(pt.name==='钣金工程师'?' selected':'')+'>钣金工程师</option><option'+(pt.name==='零售顾问'?' selected':'')+'>零售顾问</option></select></div></div>';
   html += '<div class="form-row"><div class="form-group"><label><span class="req">*</span>岗位状态</label><div class="radio-group"><label><input type="radio" name="post-perm-'+idx+'" value="有效" '+(pt.perm==='有效'?'checked':'')+'> 有效</label><label><input type="radio" name="post-perm-'+idx+'" value="无效" '+(pt.perm==='无效'||pt.perm==='离职锁定'?'checked':'')+'> 无效</label></div></div></div>';
   html += '</div>';
   return html;
@@ -2564,25 +2395,19 @@ function onEditPostDomainChange(idx) {
   levelSel.innerHTML='<option value="">请选择</option>'+levels.map(l=>'<option>'+l.name+'</option>').join('');
   levelSel.disabled=false;
   if(orgSel){orgSel.innerHTML='<option value="">请先选择岗位层级</option>';orgSel.disabled=true;}
-  var postSel2=document.getElementById('ep-post-'+idx);
-  if(postSel2){postSel2.innerHTML='<option value="">请先选择岗位层级</option>';postSel2.disabled=true;}
 }
 function onEditPostLevelChange(idx) {
   const domain = document.getElementById('ep-domain-'+idx).value;
   const level = document.getElementById('ep-level-'+idx).value;
   const orgSel = document.getElementById('ep-org-'+idx);
-  const postSel = document.getElementById('ep-post-'+idx);
-  if(!level) {
-    if(orgSel){orgSel.innerHTML='<option value="">请先选择岗位层级</option>'; orgSel.disabled=true;}
-    if(postSel){postSel.innerHTML='<option value="">请先选择岗位层级</option>'; postSel.disabled=true;}
-    return;
-  }
+  if(!orgSel) return;
+  if(!level) { orgSel.innerHTML='<option value="">请先选择岗位层级</option>'; orgSel.disabled=true; return; }
   // Get orgs of that level from tree
   const tree = ORG_TREES[domain];
   const orgs = []; function collect(node){if(node&&node.level===level) orgs.push(node); if(node&&node.children) node.children.forEach(collect);}
   if(tree) collect(tree);
-  if(orgSel){orgSel.innerHTML='<option value="">请选择</option>'+orgs.map(function(o){return '<option value="'+o.code+'">'+o.code+'-'+o.name+'</option>';}).join('');orgSel.disabled=false;}
-  if(postSel){postSel.innerHTML='<option value="">请选择</option><option>服务店长</option><option>事故服务顾问</option><option>交付邀约主管</option><option>产品助理</option><option>喷漆工程师</option><option>钣金工程师</option><option>零售顾问</option>';postSel.disabled=false;}
+  orgSel.innerHTML='<option value="">请选择</option>'+orgs.map(function(o){return '<option value="'+o.code+'">'+o.code+'-'+o.name+'</option>';}).join('');
+  orgSel.disabled=false;
 }
 
 function addEditPost() {
@@ -2627,100 +2452,11 @@ function renderOtherMapping() {
     if(target.classList.contains('om-action')) {
       var action = target.getAttribute('data-action');
       var id = target.getAttribute('data-id');
-      var r = OTHER_MAPPING_DATA.find(function(x){return x.id===id;});
-      if(action==='view') omShowView(r);
-      else if(action==='edit') omShowEdit(r);
-      else if(action==='toggle') { if(r){r.status=r.status==='启用'?'禁用':'启用';} renderOtherMapping(); showToast('状态已切换'); }
+      if(action==='view') showToast('查看 '+id+' 详情');
+      else if(action==='edit') showToast('编辑 '+id+' 映射');
+      else if(action==='toggle') showToast(target.textContent+' '+id+' 成功');
     }
   };
-  // Bind filter/action buttons
-  document.querySelectorAll('#org-sub-mapping [data-om-btn]').forEach(function(btn){
-    btn.onclick = function(){
-      var action = this.getAttribute('data-om-btn');
-      if(action==='query') renderOtherMapping();
-      else if(action==='reset') resetOtherMapping();
-      else if(action==='add') omShowAdd();
-      else if(action==='export') showToast('导出中...');
-      else if(action==='ai') showToast('收到指令，处理中...');
-    };
-  });
-  // Bind shortcut links
-  document.querySelectorAll('#org-sub-mapping [data-om-shortcut]').forEach(function(el){
-    el.onclick = function(){
-      var inp=document.getElementById('om-ai-input');
-      if(inp) inp.value=this.getAttribute('data-om-shortcut');
-      showToast('已填入');
-    };
-  });
-}
-
-// 映射页面导航
-function omShowList() {
-  document.getElementById('org-bc-page').textContent='列表';
-  document.getElementById('org-action-bar').innerHTML='';
-  document.getElementById('om-list-view').style.display='';
-  document.getElementById('om-add-view').style.display='none';
-  document.getElementById('om-view-page').style.display='none';
-  document.getElementById('om-edit-page').style.display='none';
-  renderOtherMapping();
-}
-function omShowAdd() {
-  document.getElementById('org-bc-page').textContent='新增映射';
-  document.getElementById('org-action-bar').innerHTML='<button class="btn btn-default" onclick="omShowList()">返回</button><button class="btn btn-default" onclick="showToast(\'新增岗位\')">+ 新增岗位</button><button class="btn btn-primary" onclick="omShowList();showToast(\'新增成功 ✨\')">提交</button>';
-}
-function omShowView(r) {
-  if(!r) return;
-  var el = document.getElementById('om-view-page');
-  var html = '<div style="margin-top:16px;"><button class="btn btn-default" onclick="omShowList()">← 返回列表</button></div>';
-  html += '<div class="card" style="margin-top:12px;"><div class="form-section-title">映射详情</div>';
-  html += '<div class="form-row"><div class="form-group"><label>龙虾ID</label><div class="view-value">'+r.id+'</div></div><div class="form-group"><label>龙虾名称</label><div class="view-value">'+r.name+'</div></div><div class="form-group"><label>MID</label><div class="view-value">'+r.mid+'</div></div></div>';
-  html += '<div class="form-row"><div class="form-group"><label>邮箱</label><div class="view-value">'+r.email+'</div></div><div class="form-group"><label>归属领域</label><div class="view-value">'+(r.domain||'其他领域1')+'</div></div><div class="form-group"><label>岗位名称</label><div class="view-value">'+r.postName+'</div></div></div>';
-  html += '<div class="form-row"><div class="form-group"><label>岗位类型</label><div class="view-value">'+r.postType+'</div></div><div class="form-group"><label>组织关联方式</label><div class="view-value">'+r.assocType+'</div></div><div class="form-group"><label>状态</label><div class="view-value">'+r.status+'</div></div></div>';
-  html += '<div class="form-row"><div class="form-group"><label>关联组织</label><div class="view-value">'+r.orgNames.join(', ')+'</div></div></div>';
-  html += '<div class="form-row"><div class="form-group"><label>最后更新人</label><div class="view-value">'+r.updater+'</div></div><div class="form-group"><label>最后更新时间</label><div class="view-value">'+r.updateTime+'</div></div></div></div>';
-  el.innerHTML = html;
-  document.getElementById('om-list-view').style.display='none';
-  document.getElementById('om-add-view').style.display='none';
-  document.getElementById('om-edit-page').style.display='none';
-  el.style.display='';
-}
-function omShowEdit(r) {
-  if(!r) return;
-  document.getElementById('org-bc-page').textContent='编辑映射';
-  document.getElementById('org-action-bar').innerHTML='<button class="btn btn-default" onclick="omShowList()">返回</button><button class="btn btn-default" onclick="showToast(\'新增岗位\')">+ 新增岗位</button><button class="btn btn-primary" onclick="omShowList();showToast(\'保存成功 ✨\')">提交</button>';
-  var html='';
-  // 龙虾信息
-  html+='<div style="display:flex;align-items:center;margin:16px 0 8px;"><div style="font-size:16px;font-weight:700;color:var(--text-main);display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:linear-gradient(180deg,#6366F1,#818CF8);border-radius:2px;display:inline-block;"></span>龙虾信息</div></div>';
-  html+='<div class="card"><div class="form-section">';
-  html+='<div class="form-row"><div class="form-group"><label><span class="req">*</span>龙虾ID/名称</label><input type="text" value="'+r.id+' - '+r.name+'" disabled></div></div>';
-  html+='<div class="form-row"><div class="form-group"><label>mid</label><div class="view-value" style="min-height:32px;padding:6px 12px;background:#F5F6FA;border-radius:8px;border:1px solid var(--border-light);">'+r.mid+'</div></div><div class="form-group"><label>邮箱</label><div class="view-value" style="min-height:32px;padding:6px 12px;background:#F5F6FA;border-radius:8px;border:1px solid var(--border-light);">'+(r.email||"-")+'</div></div></div>';
-  html+='<div style="margin-top:8px;"><label style="font-size:12px;color:var(--text-sub);font-weight:500;"><span class="req">*</span>龙虾状态</label><div class="radio-group" style="margin-top:4px;"><label><input type="radio" name="om-edit-st" value="启用" '+(r.status==="启用"?"checked":"")+'>启用</label><label><input type="radio" name="om-edit-st" value="禁用" '+(r.status!=="启用"?"checked":"")+'>禁用</label></div></div>';
-  html+='</div></div>';
-  // 岗位信息
-  html+='<div style="display:flex;align-items:center;margin:16px 0 8px;"><div style="font-size:16px;font-weight:700;color:var(--text-main);display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:linear-gradient(180deg,#6366F1,#818CF8);border-radius:2px;display:inline-block;"></span>岗位信息</div></div>';
-  html+='<div class="post-module"><div class="post-module-header"><div class="post-module-title">岗位 1</div></div><div class="post-module-body">';
-  html+='<div class="form-row"><div class="form-group"><label><span class="req">*</span>归属领域</label><div class="view-value">'+(r.domain||"其他领域1")+'</div></div><div class="form-group"><label><span class="req">*</span>岗位层级</label><div class="view-value">'+r.postType+'</div></div></div>';
-  html+='<div class="form-row"><div class="form-group"><label><span class="req">*</span>岗位名称</label><div class="view-value">'+r.postName+'</div></div><div class="form-group"><label><span class="req">*</span>岗位状态</label><div class="radio-group"><label><input type="radio" name="om-ep-pst" value="有效" checked> 有效</label><label><input type="radio" name="om-ep-pst" value="无效"> 无效</label></div></div></div>';
-  html+='<div class="form-row"><div class="form-group"><label><span class="req">*</span>组织关联方式</label><select><option'+(r.assocType==="按组织ID关联"?" selected":"")+'>按组织ID关联</option><option'+(r.assocType==="批量关联"?" selected":"")+'>批量关联</option><option>无需关联</option></select></div><div class="form-group"><label>关联组织</label><div class="view-value">'+r.orgNames.join(", ")+'</div></div></div>';
-  html+='</div></div>';
-  document.getElementById('om-edit-page').innerHTML=html;
-  document.getElementById('om-list-view').style.display='none';
-  document.getElementById('om-add-view').style.display='none';
-  document.getElementById('om-view-page').style.display='none';
-  document.getElementById('om-edit-page').style.display='';
-}
-
-function onOmAddDomainChange() {
-  var domain = document.getElementById('om-add-domain').value;
-  var levelSel = document.getElementById('om-add-level');
-  var postSel = document.getElementById('om-add-post');
-  var orgSel = document.getElementById('om-add-org');
-  if(!domain) { levelSel.innerHTML='<option value="">请先选择归属领域</option>'; levelSel.disabled=true; postSel.disabled=true; orgSel.disabled=true; return; }
-  var levels = ORG_LEVELS[domain] || [];
-  levelSel.innerHTML='<option value="">请选择</option>'+levels.map(function(l){return '<option>'+l.name+'</option>';}).join('');
-  levelSel.disabled=false;
-  postSel.innerHTML='<option value="">请先选择岗位层级</option>'; postSel.disabled=true;
-  orgSel.innerHTML='<option value="">请先选择岗位层级</option>'; orgSel.disabled=true;
 }
 
 // 岗位虾映射筛选联动
@@ -2767,131 +2503,6 @@ function resetOtherMapping() {
   var orgSel=document.getElementById('om-f-org'); orgSel.innerHTML='<option value="">请先选择岗位层级</option>'; orgSel.disabled=true;
   var postSel=document.getElementById('om-f-post'); postSel.innerHTML='<option value="">请先选择岗位层级</option>'; postSel.disabled=true;
   renderOtherMapping();
-}
-
-
-// ===== POST MANAGEMENT =====
-var POST_DATA = [
-  {id:226,name:'交付经理',level:'大区',domain:'其他领域1',enabled:'启用',updateTime:'2026-05-06 19:00:44'},
-  {id:643,name:'用户体验管理负责人',level:'总部',domain:'其他领域1',enabled:'启用',updateTime:'2026-04-29 15:37:41'},
-  {id:88,name:'交付主管',level:'服务站',domain:'其他领域1',enabled:'启用',updateTime:'2026-04-29 10:50:49'},
-  {id:642,name:'区域财务BP',level:'大区',domain:'其他领域1',enabled:'启用',updateTime:'2026-04-22 14:31:43'},
-  {id:639,name:'服务内训师',level:'服务站',domain:'其他领域2',enabled:'启用',updateTime:'2026-04-17 15:02:54'},
-  {id:640,name:'机电内训师',level:'服务站',domain:'其他领域2',enabled:'启用',updateTime:'2026-04-17 15:02:54'},
-  {id:638,name:'交付顾问',level:'服务站',domain:'其他领域1',enabled:'启用',updateTime:'2026-04-15 09:40:52'},
-  {id:624,name:'产品助理',level:'服务站',domain:'其他领域2',enabled:'不启用',updateTime:'2026-04-02 20:36:16'},
-  {id:625,name:'区域体验专家',level:'大区',domain:'其他领域1',enabled:'启用',updateTime:'2026-02-03 19:00:00'},
-  {id:626,name:'零售内训师',level:'服务站',domain:'其他领域2',enabled:'启用',updateTime:'2026-02-03 10:28:54'}
-];
-
-function renderPostTable() {
-  var data = POST_DATA.slice();
-  var fd = (document.getElementById('post-f-domain')||{}).value||'';
-  if(fd) data = data.filter(function(r){return r.domain===fd;});
-  var fl = (document.getElementById('post-f-level')||{}).value||'';
-  if(fl) data = data.filter(function(r){return r.level===fl;});
-  var fs = (document.getElementById('post-f-status')||{}).value||'';
-  if(fs) data = data.filter(function(r){return r.enabled===fs;});
-  var kw = (document.getElementById('post-f-search')||{}).value||'';
-  if(kw) data = data.filter(function(r){return (r.id+''+r.name).toLowerCase().indexOf(kw.toLowerCase())>=0;});
-
-  var html = '<table><thead><tr><th>序号</th><th>岗位ID</th><th>岗位层级</th><th>岗位名称</th><th>归属领域</th><th>是否启用</th><th>更新时间</th><th>操作</th></tr></thead><tbody>';
-  if(data.length===0) html += '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-sub);">暂无数据</td></tr>';
-  data.forEach(function(r,i){
-    var st = r.enabled==='启用'?'<span style="color:var(--green);">● 启用</span>':'<span style="color:var(--red);">● 不启用</span>';
-    html += '<tr><td>'+(i+1)+'</td><td>'+r.id+'</td><td>'+r.level+'</td><td>'+r.name+'</td><td>'+r.domain+'</td><td>'+st+'</td><td>'+r.updateTime+'</td><td class="op-cell"><a class="post-act" data-pa="view" data-pid="'+r.id+'">查看</a><a class="post-act" data-pa="edit" data-pid="'+r.id+'">编辑</a></td></tr>';
-  });
-  html += '</tbody></table>';
-  document.getElementById('post-table-wrap').innerHTML = html;
-  // Event delegation
-  document.getElementById('post-table-wrap').onclick = function(e){
-    var t=e.target; if(!t.classList.contains('post-act')) return;
-    var action=t.getAttribute('data-pa');
-    var id=parseInt(t.getAttribute('data-pid'));
-    var r=POST_DATA.find(function(x){return x.id===id;});
-    if(action==='view') showPostView(r);
-    else if(action==='edit') showPostEdit(r);
-  };
-}
-
-function onPostDomainChange(){
-  var domain=document.getElementById('post-f-domain').value;
-  var ls=document.getElementById('post-f-level');
-  if(!domain){ls.innerHTML='<option value="">请先选择归属领域</option>';ls.disabled=true;return;}
-  var levels=ORG_LEVELS[domain]||[];
-  ls.innerHTML='<option value="">全部</option>'+levels.map(function(l){return '<option>'+l.name+'</option>';}).join('');
-  ls.disabled=false;
-}
-
-function resetPostFilter(){
-  document.getElementById('post-f-domain').selectedIndex=0;
-  var ls=document.getElementById('post-f-level');ls.innerHTML='<option value="">请先选择归属领域</option>';ls.disabled=true;
-  document.getElementById('post-f-status').selectedIndex=0;
-  document.getElementById('post-f-search').value='';
-  renderPostTable();
-}
-
-function showPostView(r){
-  if(!r)return;
-  document.getElementById('post-list-view').style.display='none';
-  var el=document.getElementById('post-view-page');
-  var html='<div style="margin-top:16px;display:flex;align-items:center;justify-content:space-between;"><div style="font-size:13px;color:var(--text-sub);">岗位管理 / 查看岗位</div><button class="btn btn-default" onclick="backToPostList()">返回</button></div>';
-  html+='<div class="card" style="margin-top:12px;"><div class="form-section-title">基础信息</div>';
-  html+='<div class="form-row"><div class="form-group"><label>岗位ID</label><div class="view-value">'+r.id+'</div></div><div class="form-group"><label>岗位名称</label><div class="view-value">'+r.name+'</div></div><div class="form-group"><label>岗位层级</label><div class="view-value">'+r.level+'</div></div></div>';
-  html+='<div class="form-row"><div class="form-group"><label>归属领域</label><div class="view-value">'+r.domain+'</div></div><div class="form-group"><label>是否启用</label><div class="view-value">'+(r.enabled==='启用'?'<span style="color:var(--green);">启用</span>':'<span style="color:var(--red);">不启用</span>')+'</div></div><div class="form-group"><label>更新时间</label><div class="view-value">'+r.updateTime+'</div></div></div></div>';
-  html+='<div class="card" style="margin-top:12px;"><div class="form-section-title">操作记录</div><div class="table-wrap"><table><thead><tr><th>序号</th><th>时间</th><th>操作来源</th><th>操作人</th><th>操作记录</th></tr></thead><tbody>';
-  html+='<tr><td>1</td><td>'+r.updateTime+'</td><td>组织中台</td><td>木子李</td><td>更新岗位状态为'+r.enabled+'</td></tr>';
-  html+='<tr><td>2</td><td>2026-03-15 10:00:00</td><td>组织中台</td><td>系统</td><td>创建岗位</td></tr>';
-  html+='</tbody></table></div></div>';
-  el.innerHTML=html;
-  el.style.display='';
-}
-
-function showPostEdit(r){
-  if(!r)return;
-  document.getElementById('post-list-view').style.display='none';
-  document.getElementById('post-add-page').style.display='none';
-  var el=document.getElementById('post-edit-page');
-  var levels=[];
-  Object.keys(ORG_LEVELS).forEach(function(k){ORG_LEVELS[k].forEach(function(l){if(levels.indexOf(l.name)<0)levels.push(l.name);});});
-  var html='<div style="margin-top:16px;display:flex;align-items:center;justify-content:space-between;"><div style="font-size:13px;color:var(--text-sub);">岗位管理 / 编辑岗位</div><div style="display:flex;gap:8px;"><button class="btn btn-default" onclick="backToPostList()">返回</button><button class="btn btn-primary" onclick="backToPostList();showToast(\'保存成功 ✨\')">确定</button></div></div>';
-  html+='<div class="card" style="margin-top:12px;"><div class="form-section-title">岗位信息</div>';
-  html+='<div class="form-row"><div class="form-group"><label>岗位ID</label><input value="'+r.id+'" disabled></div><div class="form-group"><label><span class="req">*</span>岗位名称</label><input value="'+r.name+'"></div></div>';
-  html+='<div class="form-row"><div class="form-group"><label>归属领域</label><input value="'+r.domain+'" disabled></div><div class="form-group"><label><span class="req">*</span>所属层级</label><select>'+levels.map(function(l){return '<option'+(l===r.level?' selected':'')+'>'+l+'</option>';}).join('')+'</select></div></div>';
-  html+='<div class="form-row"><div class="form-group"><label><span class="req">*</span>岗位状态</label><div class="radio-group"><label><input type="radio" name="post-edit-st" value="启用" '+(r.enabled==='启用'?'checked':'')+'>启用</label><label><input type="radio" name="post-edit-st" value="不启用" '+(r.enabled!=='启用'?'checked':'')+'>不启用</label></div></div></div></div>';
-  el.innerHTML=html;
-  el.style.display='';
-}
-
-function showPostAdd(){
-  document.getElementById('post-list-view').style.display='none';
-  document.getElementById('post-view-page').style.display='none';
-  document.getElementById('post-edit-page').style.display='none';
-  var el=document.getElementById('post-add-page');
-  var newId = Math.max.apply(null,POST_DATA.map(function(p){return p.id;}))+1;
-  var html='<div style="margin-top:16px;display:flex;align-items:center;justify-content:space-between;"><div style="font-size:13px;color:var(--text-sub);">岗位管理 / 新增岗位</div><div style="display:flex;gap:8px;"><button class="btn btn-default" onclick="backToPostList()">返回</button><button class="btn btn-primary" onclick="backToPostList();showToast(\'新增成功 ✨\')">确定</button></div></div>';
-  html+='<div class="card" style="margin-top:12px;"><div class="form-section-title">岗位信息</div>';
-  html+='<div class="form-row"><div class="form-group"><label><span class="req">*</span>岗位名称</label><input placeholder="请输入岗位名称"></div></div>';
-  html+='<div class="form-row"><div class="form-group"><label><span class="req">*</span>归属领域</label><select id="post-add-domain" onchange="onPostAddDomainChange()"><option value="">请选择</option><option>其他领域1</option><option>其他领域2</option><option>其他领域3</option><option>其他领域4</option></select></div><div class="form-group"><label><span class="req">*</span>所属层级</label><select id="post-add-level" disabled><option value="">请先选择归属领域</option></select></div></div>';
-  html+='<div class="form-row"><div class="form-group"><label><span class="req">*</span>岗位状态</label><div class="radio-group"><label><input type="radio" name="post-add-st" value="启用" checked>启用</label><label><input type="radio" name="post-add-st" value="不启用">不启用</label></div></div></div></div>';
-  el.innerHTML=html;
-  el.style.display='';
-}
-
-function onPostAddDomainChange(){
-  var domain=document.getElementById('post-add-domain').value;
-  var ls=document.getElementById('post-add-level');
-  if(!domain){ls.innerHTML='<option value="">请先选择归属领域</option>';ls.disabled=true;return;}
-  var levels=ORG_LEVELS[domain]||[];
-  ls.innerHTML='<option value="">请选择</option>'+levels.map(function(l){return '<option>'+l.name+'</option>';}).join('');
-  ls.disabled=false;
-}
-
-function backToPostList(){
-  document.getElementById('post-list-view').style.display='';
-  document.getElementById('post-view-page').style.display='none';
-  document.getElementById('post-edit-page').style.display='none';
-  document.getElementById('post-add-page').style.display='none';
 }
 
 // ===== INIT =====
