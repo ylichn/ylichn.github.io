@@ -657,13 +657,13 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
         <div class="filter-item"><label>领域</label><select id="org-tree-domain" onchange="renderOrgTree()"><option>其他领域1</option><option>其他领域2</option><option>其他领域3</option><option>其他领域4</option></select></div>
       </div>
       <div style="margin-bottom:16px;display:flex;align-items:center;gap:12px;"><div id="org-levels-display" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"></div><button class="btn btn-primary" onclick="addOrgLevel()" style="height:28px;font-size:12px;padding:0 12px;">+ 新建层级</button></div>
-      <div style="font-size:14px;font-weight:700;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;">组织树 <button class="btn btn-primary" onclick="addRootOrg()" style="height:28px;font-size:12px;padding:0 12px;">+ 新增组织</button></div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--border-light);">组织树</div>
       <!-- 筛选区 -->
       <div class="filter-area" style="margin-bottom:16px;">
         <div class="filter-item"><label>组织编码/组织名称</label><input type="text" id="org-tree-search" placeholder="请输入编码或名称"></div>
         <div class="filter-item"><label>组织层级</label><select id="org-tree-level-filter"><option value="">全部</option></select></div>
         <div class="filter-item"><label>组织状态</label><select id="org-tree-status-filter"><option value="">全部</option><option>启用</option><option>不启用</option></select></div>
-        <div class="filter-actions"><button class="btn btn-default" onclick="resetOrgTreeFilter()">重置</button><button class="btn btn-primary" onclick="renderOrgTree()">查询</button></div>
+        <div class="filter-actions"><button class="btn btn-primary" onclick="addRootOrg()" style="height:36px;">+ 新增组织</button><button class="btn btn-default" onclick="resetOrgTreeFilter()">重置</button><button class="btn btn-primary" onclick="renderOrgTree()">查询</button></div>
       </div>
       <!-- 表格区 -->
       <div class="table-wrap" id="org-tree-container"></div>
@@ -2101,11 +2101,11 @@ function renderOrgTree() {
     levelsEl.innerHTML = '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span style="font-size:13px;color:var(--text-sub);font-weight:600;">层级结构：</span>'+chain.map((l,i)=>'<span style="font-size:12px;padding:3px 10px;background:var(--primary-light);color:var(--primary);border-radius:6px;font-weight:500;">L'+(i+1)+' '+l.name+'</span>'+(i<chain.length-1?'<span style="color:var(--border);">→</span>':'')).join('')+'</div>';
   } else { levelsEl.innerHTML = '<div style="font-size:12px;color:var(--text-disabled);">暂未定义层级，请先新建层级</div>'; }
   if(!tree) { document.getElementById('org-tree-container').innerHTML='<p style="color:var(--text-sub);padding:20px 0;text-align:center;">暂无组织数据，请先新建层级后新增组织</p>'; return; }
-  // Flatten tree into rows
+  // Flatten tree into rows (respecting expand/collapse)
   const rows = [];
   function flattenTree(node, depth) {
-    rows.push({id:node.id, code:node.code, name:node.name, level:node.type, status:node.status||'启用', updateTime:node.updateTime||'2026-05-07 14:30:00', depth:depth});
-    if(node.children) node.children.forEach(c=>flattenTree(c, depth+1));
+    rows.push({id:node.id, code:node.code, name:node.name, level:node.type, status:node.status||'启用', updateTime:node.updateTime||'2026-05-07 14:30:00', depth:depth, hasChildren:!!(node.children&&node.children.length), expanded:node.expanded!==false});
+    if(node.children && node.expanded!==false) node.children.forEach(c=>flattenTree(c, depth+1));
   }
   flattenTree(tree, 0);
   // Apply filters
@@ -2127,7 +2127,8 @@ function renderOrgTree() {
     ops += '<a class="btn-text" onclick="addSiblingOrg(event,\''+r.id+'\')">+同节点</a>';
     ops += '<a class="btn-text" onclick="editOrgNode(event,\''+r.id+'\',\''+r.name+'\')">编辑</a>';
     ops += '<a class="btn-text" onclick="showOrgLog(event,\''+r.id+'\',\''+r.name+'\')">日志</a>';
-    html += '<tr><td style="padding-left:'+(14+indent)+'px;">'+r.code+'</td><td>'+r.name+'</td><td>'+r.level+'</td><td>'+statusTag+'</td><td>'+r.updateTime+'</td><td class="op-cell">'+ops+'</td></tr>';
+    const toggle = r.hasChildren ? '<span style="cursor:pointer;margin-right:4px;font-size:10px;color:var(--text-sub);" onclick="toggleOrgNode(event,\''+r.id+'\')">'+( r.expanded?'▼':'▶')+'</span>' : '<span style="margin-right:4px;font-size:10px;color:var(--border);">•</span>';
+    html += '<tr><td style="padding-left:'+(14+indent)+'px;">'+toggle+r.code+'</td><td>'+r.name+'</td><td>'+r.level+'</td><td>'+statusTag+'</td><td>'+r.updateTime+'</td><td class="op-cell">'+ops+'</td></tr>';
   });
   html += '</tbody></table>';
   document.getElementById('org-tree-container').innerHTML = html;
@@ -2179,10 +2180,10 @@ function getCurrentTree() {
 }
 
 function toggleOrgNode(e, id) {
-  e.stopPropagation();
+  if(e) e.stopPropagation();
   const tree = getCurrentTree();
   const node = findNode(tree, id);
-  if(node) { node.expanded = !node.expanded; renderOrgTree(); }
+  if(node) { node.expanded = (node.expanded===false)?true:false; renderOrgTree(); }
 }
 
 // Collect all org nodes as flat list for parent selection
@@ -2216,7 +2217,7 @@ function openOrgEditModal(id) {
   }
   
   var modalEl = document.getElementById('org-modal-overlay');
-  modalEl.innerHTML = '<div class="modal"><div class="modal-header">编辑组织<span class="modal-close" onclick="document.getElementById(\'org-modal-overlay\').classList.remove(\'show\')">&times;</span></div><div class="modal-body"><div class="form-group" style="margin-bottom:14px;"><label><span class="req">*</span>组织名称</label><input id="edit-org-name" value="'+node.name+'"></div><div class="form-group" style="margin-bottom:14px;"><label>组织编码</label><input value="'+node.code+'" disabled style="background:#F2F3F9;color:var(--text-sub);"></div><div class="form-group" style="margin-bottom:14px;"><label><span class="req">*</span>所属层级</label><select id="edit-org-level" onchange="onEditOrgLevelChange(\''+domain+'\',\''+id+'\')">'+levelOpts+'</select></div><div class="form-group" style="margin-bottom:14px;" id="edit-org-parent-group"><label>父节点</label>'+parentHtml+'</div></div><div class="modal-footer"><button class="btn btn-default" onclick="document.getElementById(\'org-modal-overlay\').classList.remove(\'show\')">取消</button><button class="btn btn-primary" onclick="confirmEditOrg(\''+id+'\')">确定</button></div></div>';
+  modalEl.innerHTML = '<div class="modal"><div class="modal-header">编辑组织<span class="modal-close" onclick="document.getElementById(\'org-modal-overlay\').classList.remove(\'show\')">&times;</span></div><div class="modal-body"><div class="form-group" style="margin-bottom:14px;"><label><span class="req">*</span>组织名称</label><input id="edit-org-name" value="'+node.name+'"></div><div class="form-group" style="margin-bottom:14px;"><label>组织编码</label><input value="'+node.code+'" disabled style="background:#F2F3F9;color:var(--text-sub);"></div><div class="form-group" style="margin-bottom:14px;"><label><span class="req">*</span>所属层级</label><select id="edit-org-level" onchange="onEditOrgLevelChange(\''+domain+'\',\''+id+'\')">'+levelOpts+'</select></div><div class="form-group" style="margin-bottom:14px;" id="edit-org-parent-group"><label>父节点</label>'+parentHtml+'</div><div class="form-group" style="margin-bottom:14px;"><label><span class="req">*</span>是否启用</label><div class="radio-group"><label><input type="radio" name="edit-org-status" value="启用" '+(node.status!=='不启用'?'checked':'')+'>启用</label><label><input type="radio" name="edit-org-status" value="不启用" '+(node.status==='不启用'?'checked':'')+'>不启用</label></div></div></div><div class="modal-footer"><button class="btn btn-default" onclick="document.getElementById(\'org-modal-overlay\').classList.remove(\'show\')">取消</button><button class="btn btn-primary" onclick="confirmEditOrg(\''+id+'\')">确定</button></div></div>';
   modalEl.classList.add('show');
 }
 
@@ -2242,12 +2243,15 @@ function confirmEditOrg(id) {
   var name = document.getElementById('edit-org-name').value.trim();
   var level = document.getElementById('edit-org-level').value;
   if(!name) { showToast('请填写组织名称'); return; }
+  var statusRadio = document.querySelector('input[name="edit-org-status"]:checked');
+  var status = statusRadio ? statusRadio.value : '启用';
   var domain = document.getElementById('org-tree-domain').value;
   var tree = ORG_TREES[domain];
   var node = findNode(tree, id);
   if(node) {
     node.name = name;
     node.type = level;
+    node.status = status;
   }
   document.getElementById('org-modal-overlay').classList.remove('show');
   renderOrgTree();
