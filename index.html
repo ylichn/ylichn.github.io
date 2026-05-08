@@ -269,7 +269,7 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
         <div class="org-dropdown-item" onclick="selectOrgSub('people',this);event.stopPropagation();">用户管理</div>
         <div class="org-dropdown-item" onclick="selectOrgSub('tree',this);event.stopPropagation();">组织架构</div>
         <div class="org-dropdown-item" onclick="selectOrgSub('post',this);event.stopPropagation();">岗位管理</div>
-        <div class="org-dropdown-item" onclick="selectOrgSub('mapping',this);event.stopPropagation();">岗位虾映射</div>
+        <div class="org-dropdown-item" onclick="selectOrgSub('mapping',this);event.stopPropagation();">岗位虾管理</div>
       </div>
     </div>
   </div>
@@ -310,10 +310,10 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
     <div id="ai-result" style="margin-top:14px;display:none;"></div>
     <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
       <span style="font-size:12px;color:#6B7194;font-weight:600;">快捷指令：</span>
-      <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;transition:all .15s;color:#6366F1;font-weight:500;" onmouseover="this.style.background='rgba(99,102,241,.12)'" onmouseout="this.style.background='rgba(99,102,241,.06)'" onclick="setAiInput('新增映射：龙虾237484-门店运营虾A，关联店长岗位，按组织ID关联北京朝阳大悦城店')">新增映射</a>
-      <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;transition:all .15s;color:#6366F1;font-weight:500;" onmouseover="this.style.background='rgba(99,102,241,.12)'" onmouseout="this.style.background='rgba(99,102,241,.06)'" onclick="setAiInput('禁用龙虾237487的所有映射')">批量禁用</a>
-      <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;transition:all .15s;color:#6366F1;font-weight:500;" onmouseover="this.style.background='rgba(99,102,241,.12)'" onmouseout="this.style.background='rgba(99,102,241,.06)'" onclick="setAiInput('查询所有门店类型且状态为启用的映射')">智能查询</a>
-      <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;transition:all .15s;color:#6366F1;font-weight:500;" onmouseover="this.style.background='rgba(99,102,241,.12)'" onmouseout="this.style.background='rgba(99,102,241,.06)'" onclick="setAiInput('把巡店检查虾H的组织从专卖2区改为批量关联丰台网格')">编辑映射</a>
+      <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;transition:all .15s;color:#6366F1;font-weight:500;" onmouseover="this.style.background='rgba(99,102,241,.12)'" onmouseout="this.style.background='rgba(99,102,241,.06)'" onclick="setAiInput('新增岗位虾：龙虾237484-门店运营虾A，关联店长岗位，按组织ID关联北京朝阳大悦城店')">新增岗位虾</a>
+      <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;transition:all .15s;color:#6366F1;font-weight:500;" onmouseover="this.style.background='rgba(99,102,241,.12)'" onmouseout="this.style.background='rgba(99,102,241,.06)'" onclick="setAiInput('禁用龙虾237487的所有岗位虾')">批量禁用</a>
+      <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;transition:all .15s;color:#6366F1;font-weight:500;" onmouseover="this.style.background='rgba(99,102,241,.12)'" onmouseout="this.style.background='rgba(99,102,241,.06)'" onclick="setAiInput('查询所有门店类型且状态为启用的岗位虾')">智能查询</a>
+      <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;transition:all .15s;color:#6366F1;font-weight:500;" onmouseover="this.style.background='rgba(99,102,241,.12)'" onmouseout="this.style.background='rgba(99,102,241,.06)'" onclick="setAiInput('把巡店检查虾H的组织从专卖2区改为批量关联丰台网格')">编辑岗位虾</a>
       <span style="color:#D4D7E5;">|</span>
       <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(139,92,246,.06);border-radius:6px;transition:all .15s;color:#7C3AED;font-weight:500;" onmouseover="this.style.background='rgba(139,92,246,.12)'" onmouseout="this.style.background='rgba(139,92,246,.06)'" onclick="setAiInput('组织中台在岗位虾中的职责是什么')">💬 组织中台职责</a>
       <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(139,92,246,.06);border-radius:6px;transition:all .15s;color:#7C3AED;font-weight:500;" onmouseover="this.style.background='rgba(139,92,246,.12)'" onmouseout="this.style.background='rgba(139,92,246,.06)'" onclick="setAiInput('三种挂靠方式有什么区别')">💬 挂靠方式</a>
@@ -358,7 +358,7 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
       <div class="filter-actions">
         <button class="btn btn-primary" onclick="doSearch()">查询</button>
         <button class="btn btn-default" onclick="doReset()">重置</button>
-        <button class="btn btn-primary" onclick="showPage('add')" style="margin-left:16px;">+ 新增映射</button>
+        <button class="btn btn-primary" onclick="showPage('add')" style="margin-left:16px;">+ 新增岗位虾</button>
         <button class="btn btn-default" onclick="doExport()">导出</button>
       </div>
     </div>
@@ -586,12 +586,12 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
             <tr><th>序号</th><th>时间</th><th>操作来源</th><th>操作人</th><th>操作记录</th></tr>
           </thead>
           <tbody>
-            <tr><td>1</td><td>2026-04-20 16:45:12</td><td><span class="tag" style="background:rgba(99,102,241,.1);color:#6366F1;font-size:11px;padding:2px 8px;">AI配置助手</span></td><td>木子李（liyan）</td><td>编辑映射：<br>岗位状态：由 有效 改为 有效（未变更）<br>组织：<br>&nbsp;&nbsp;- 方式：由 按组织ID关联 改为 批量关联<br>&nbsp;&nbsp;- 层级：由 门店 改为 小区<br>&nbsp;&nbsp;- 组织ID/名称：<br>&nbsp;&nbsp;&nbsp;&nbsp;新增 D001-专卖1区<br><span style="color:#6B7194;font-size:12px;">原始指令：把门店运营虾A的组织改为批量关联专卖1区</span></td></tr>
-            <tr><td>2</td><td>2026-04-18 14:30:25</td><td>组织中台</td><td>木子李（liyan）</td><td>编辑映射：<br>组织：<br>&nbsp;&nbsp;- 组织ID/名称：<br>&nbsp;&nbsp;&nbsp;&nbsp;新增 S001-小米之家·北京朝阳大悦城店</td></tr>
-            <tr><td>3</td><td>2026-04-17 10:00:00</td><td>组织中台</td><td>木子李（liyan）</td><td>编辑映射：<br>- 岗位：由 P002-店员 改为 P001-店长</td></tr>
-            <tr><td>4</td><td>2026-04-16 09:30:45</td><td>定时任务</td><td>系统</td><td>编辑映射：<br>组织：<br>&nbsp;&nbsp;- 组织ID/名称：<br>&nbsp;&nbsp;&nbsp;&nbsp;新增 S006-小米之家·北京中关村店（批量关联自动更新）</td></tr>
+            <tr><td>1</td><td>2026-04-20 16:45:12</td><td><span class="tag" style="background:rgba(99,102,241,.1);color:#6366F1;font-size:11px;padding:2px 8px;">AI配置助手</span></td><td>木子李（liyan）</td><td>编辑岗位虾：<br>岗位状态：由 有效 改为 有效（未变更）<br>组织：<br>&nbsp;&nbsp;- 方式：由 按组织ID关联 改为 批量关联<br>&nbsp;&nbsp;- 层级：由 门店 改为 小区<br>&nbsp;&nbsp;- 组织ID/名称：<br>&nbsp;&nbsp;&nbsp;&nbsp;新增 D001-专卖1区<br><span style="color:#6B7194;font-size:12px;">原始指令：把门店运营虾A的组织改为批量关联专卖1区</span></td></tr>
+            <tr><td>2</td><td>2026-04-18 14:30:25</td><td>组织中台</td><td>木子李（liyan）</td><td>编辑岗位虾：<br>组织：<br>&nbsp;&nbsp;- 组织ID/名称：<br>&nbsp;&nbsp;&nbsp;&nbsp;新增 S001-小米之家·北京朝阳大悦城店</td></tr>
+            <tr><td>3</td><td>2026-04-17 10:00:00</td><td>组织中台</td><td>木子李（liyan）</td><td>编辑岗位虾：<br>- 岗位：由 P002-店员 改为 P001-店长</td></tr>
+            <tr><td>4</td><td>2026-04-16 09:30:45</td><td>定时任务</td><td>系统</td><td>编辑岗位虾：<br>组织：<br>&nbsp;&nbsp;- 组织ID/名称：<br>&nbsp;&nbsp;&nbsp;&nbsp;新增 S006-小米之家·北京中关村店（批量关联自动更新）</td></tr>
             <tr><td>5</td><td>2026-04-15 14:20:10</td><td>组织中台</td><td>张三（zhangsan）</td><td>操作启用</td></tr>
-            <tr><td>6</td><td>2026-04-14 11:00:00</td><td>组织中台</td><td>张三（zhangsan）</td><td>新增映射：<br>岗位：关联 P002-店员<br>岗位状态：有效<br>组织层级：关联 门店<br>组织：S001-小米之家·北京朝阳大悦城店</td></tr>
+            <tr><td>6</td><td>2026-04-14 11:00:00</td><td>组织中台</td><td>张三（zhangsan）</td><td>新增岗位虾：<br>岗位：关联 P002-店员<br>岗位状态：有效<br>组织层级：关联 门店<br>组织：S001-小米之家·北京朝阳大悦城店</td></tr>
           </tbody>
         </table>
       </div>
@@ -721,9 +721,9 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
     <div id="post-edit-page" style="display:none;"></div>
   </div>
 
-  <!-- Sub: 岗位虾映射 -->
+  <!-- Sub: 岗位虾管理 -->
   <div id="org-sub-mapping" style="display:none;padding:0 28px 28px;">
-    <!-- 映射列表视图 -->
+    <!-- 岗位虾列表视图 -->
     <div id="om-list-view">
     <div style="padding:0;">
       <!-- AI 配置助手 -->
@@ -740,9 +740,9 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
         </div>
         <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
           <span style="font-size:12px;color:#6B7194;font-weight:600;">快捷指令：</span>
-          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;color:#6366F1;font-weight:500;" data-om-shortcut="新增映射：服务站运营虾，关联北京服务站">新增映射</a>
-          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;color:#6366F1;font-weight:500;" data-om-shortcut="禁用所有停用状态的映射">批量禁用</a>
-          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;color:#6366F1;font-weight:500;" data-om-shortcut="查询所有服务站类型且启用的映射">智能查询</a>
+          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;color:#6366F1;font-weight:500;" data-om-shortcut="新增岗位虾：服务站运营虾，关联北京服务站">新增岗位虾</a>
+          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;color:#6366F1;font-weight:500;" data-om-shortcut="禁用所有停用状态的岗位虾">批量禁用</a>
+          <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(99,102,241,.06);border-radius:6px;color:#6366F1;font-weight:500;" data-om-shortcut="查询所有服务站类型且启用的岗位虾">智能查询</a>
           <span style="color:#D4D7E5;">|</span>
           <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(139,92,246,.06);border-radius:6px;color:#7C3AED;font-weight:500;" data-om-shortcut="组织中台在岗位虾中的职责是什么">💬 组织中台职责</a>
           <a style="font-size:12px;cursor:pointer;padding:4px 10px;background:rgba(139,92,246,.06);border-radius:6px;color:#7C3AED;font-weight:500;" data-om-shortcut="三种挂靠方式有什么区别">💬 挂靠方式</a>
@@ -763,7 +763,7 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
           <div class="filter-actions" id="om-filter-actions">
             <button class="btn btn-primary" data-om-btn="query">查询</button>
             <button class="btn btn-default" data-om-btn="reset">重置</button>
-            <button class="btn btn-primary" data-om-btn="add" style="margin-left:16px;">+ 新增映射</button>
+            <button class="btn btn-primary" data-om-btn="add" style="margin-left:16px;">+ 新增岗位虾</button>
             <button class="btn btn-default" data-om-btn="export">导出</button>
           </div>
         </div>
@@ -772,7 +772,7 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
       <div class="card" style="margin-top:12px;padding:0;"><div class="table-wrap" id="other-mapping-table"></div></div>
     </div>
     </div><!-- /om-list-view -->
-    <!-- 新增映射视图 -->
+    <!-- 新增岗位虾视图 -->
     <div id="om-add-view" style="display:none;">
       <!-- 龙虾信息 -->
       <div style="display:flex;align-items:center;margin:16px 0 8px;"><div style="font-size:16px;font-weight:700;color:var(--text-main);display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:linear-gradient(180deg,#6366F1,#818CF8);border-radius:2px;display:inline-block;"></span>龙虾信息</div></div>
@@ -789,9 +789,9 @@ select:disabled,.form-group select:disabled{background:#F2F3F9!important;color:v
         <div class="form-row"><div class="form-group"><label><span class="req">*</span>组织关联方式</label><select><option value="">请选择</option><option>按组织ID关联</option><option>批量关联</option><option>无需关联</option></select></div><div class="form-group"><label>组织名称</label><select id="om-add-org" disabled><option value="">请先选择岗位层级</option></select></div></div>
       </div></div>
     </div>
-    <!-- 查看映射视图 -->
+    <!-- 查看岗位虾视图 -->
     <div id="om-view-page" style="display:none;"></div>
-    <!-- 编辑映射视图 -->
+    <!-- 编辑岗位虾视图 -->
     <div id="om-edit-page" style="display:none;"></div>
   </div>
 </div><!-- /module-org -->
@@ -899,7 +899,7 @@ function showPage(page) {
   ['list','add','edit','view'].forEach(p => {
     document.getElementById('page-'+p).style.display = p===page?'block':'none';
   });
-  const bcMap = {list:'列表',add:'新增映射',edit:'编辑映射',view:'查看映射'};
+  const bcMap = {list:'列表',add:'新增岗位虾',edit:'编辑岗位虾',view:'查看岗位虾'};
   document.getElementById('bc-current').textContent = bcMap[page];
   
   // Update action bar
@@ -1048,9 +1048,9 @@ function doToggle(id) {
   const isEnable = item.status==='禁用';
   let body = '';
   if(isEnable){
-    body = `<p>请确认是否启用【${item.id}-${item.name}】的映射</p>`;
+    body = `<p>请确认是否启用【${item.id}-${item.name}】的岗位虾</p>`;
   } else {
-    body = `<p>请确认是否禁用【${item.id}-${item.name}】的映射</p><p class="warning">禁用后，对应岗位用户将无法使用此龙虾，请谨慎操作！</p>`;
+    body = `<p>请确认是否禁用【${item.id}-${item.name}】的岗位虾</p><p class="warning">禁用后，对应岗位用户将无法使用此龙虾，请谨慎操作！</p>`;
   }
   openModal(isEnable?'确认启用':'确认禁用', body, ()=>{
     item.status = isEnable?'启用':'禁用';
@@ -1470,8 +1470,8 @@ function parseAiIntent(input) {
   }
   // 再尝试匹配操作指令
   if(input.includes('新增') || (input.includes('关联') && !questionWords.some(w => input.includes(w)))) {
-    return { action: '新增映射', fields: [
-      {label:'操作类型', value:'新增映射'},
+    return { action: '新增岗位虾', fields: [
+      {label:'操作类型', value:'新增岗位虾'},
       {label:'龙虾', value: input.match(/龙虾(\S+)/)?.[1] || '门店运营虾A'},
       {label:'岗位类型', value: input.includes('店长') ? '门店' : '总部'},
       {label:'关联岗位', value: input.includes('店长') ? '店长' : '运营'},
@@ -1493,8 +1493,8 @@ function parseAiIntent(input) {
       {label:'预计结果', value:'匹配 6 条记录'}
     ]};
   } else if(input.includes('改') || input.includes('编辑') || input.includes('修改')) {
-    return { action: '编辑映射', fields: [
-      {label:'操作类型', value:'编辑映射'},
+    return { action: '编辑岗位虾', fields: [
+      {label:'操作类型', value:'编辑岗位虾'},
       {label:'目标龙虾', value: input.match(/[虾龙虾](\S+)/)?.[1] || '巡店检查虾H'},
       {label:'变更内容', value:'组织关联方式变更'},
       {label:'变更前', value:'按组织ID关联 → 专取2区'},
@@ -2669,7 +2669,7 @@ function omShowList() {
   renderOtherMapping();
 }
 function omShowAdd() {
-  document.getElementById('org-bc-page').textContent='新增映射';
+  document.getElementById('org-bc-page').textContent='新增岗位虾';
   document.getElementById('org-action-bar').innerHTML='<button class="btn btn-default" onclick="omShowList()">返回</button><button class="btn btn-default" onclick="showToast(\'新增岗位\')">+ 新增岗位</button><button class="btn btn-primary" onclick="omShowList();showToast(\'新增成功 ✨\')">提交</button>';
 }
 function omShowView(r) {
@@ -2690,7 +2690,7 @@ function omShowView(r) {
 }
 function omShowEdit(r) {
   if(!r) return;
-  document.getElementById('org-bc-page').textContent='编辑映射';
+  document.getElementById('org-bc-page').textContent='编辑岗位虾';
   document.getElementById('org-action-bar').innerHTML='<button class="btn btn-default" onclick="omShowList()">返回</button><button class="btn btn-default" onclick="showToast(\'新增岗位\')">+ 新增岗位</button><button class="btn btn-primary" onclick="omShowList();showToast(\'保存成功 ✨\')">提交</button>';
   var html='';
   // 龙虾信息
@@ -2727,7 +2727,7 @@ function onOmAddDomainChange() {
   orgSel.innerHTML='<option value="">请先选择岗位层级</option>'; orgSel.disabled=true;
 }
 
-// 岗位虾映射筛选联动
+// 岗位虾管理筛选联动
 function onOmDomainChange() {
   var domain = document.getElementById('om-f-domain').value;
   var levelSel = document.getElementById('om-f-type');
